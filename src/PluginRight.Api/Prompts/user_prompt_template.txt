@@ -1,24 +1,5 @@
-Generate a Dynamics 365 plugin that implements the IPlugin interface.
-
 Metadata (YAML):
 {{METADATA_YAML}}
 
 User goal:
 {{USER_PROMPT}}
-
-Requirements:
-- Use IPluginExecutionContext and IServiceProvider correctly
-- Use TracingService for logging
-- Logical and clean structure
-- Reasonable null and type checks
-- Proper use of Target and pre/post entity images if needed
-- Well-written comments explaining the purpose of the code
-
-Registration hints (infer and document in comments):
-- Message (Create/Update/Delete)
-- Stage (PreValidation/PreOperation/PostOperation)
-- Primary entity
-- Filtering attributes
-- Required pre/post images
-
-Only output a single C# file. No Markdown. No extra text.

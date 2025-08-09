@@ -58,8 +58,11 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
         var body = new
         {
             metadata_yaml = metadata,
-            user_prompt = "On Account Update, if name changes, copy to all child Contacts \n"
-                + "and append domain from emailaddress1 when missing. PostOperation.",
+            user_prompt =
+            @"On Account Update (PostOperation), find all related contacts "
+             + @"whose emailaddress1 is missing a domain part and append the "
+             + @"domain from the account's primary contact's email, or use "
+             + @"“example.com” if not available.",
         };
 
         using var resp = await client.PostAsync(

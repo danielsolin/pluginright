@@ -1,6 +1,7 @@
 ## PluginRight – Generate Microsoft Dataverse Plugins in Minutes
 
-**PluginRight** makes it easy to create custom Microsoft Dataverse plugins without spending hours writing boilerplate code.
+**PluginRight** makes it easy to create custom Microsoft Dataverse plugins
+without spending hours writing boilerplate code.
 
 ### How it works
 1. **Sign in** with Google or LinkedIn.

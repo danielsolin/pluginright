@@ -1,4 +1,4 @@
-﻿namespace PluginRight.Core;
+namespace PluginRight.Core;
 
 public class Class1
 {

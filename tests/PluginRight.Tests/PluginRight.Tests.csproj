@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PluginRight.Api\PluginRight.Api.csproj" />
+  </ItemGroup>
+
 </Project>

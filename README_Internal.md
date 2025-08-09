@@ -2,7 +2,8 @@
 
 ## 1. Login / Registration
 - Frontend in e.g. Next.js (hosted on Vercel for quick setup).
-- Auth via Google and LinkedIn (Auth0 or Firebase Auth → Postgres/Supabase).
+- Auth via Google and LinkedIn (Auth0 or Firebase Auth →
+  Postgres/Supabase).
 - Simple user profile:
   - ID
   - Name / email
@@ -39,28 +40,35 @@
 
 ---
 
-✅ **Roadmap item:** *“Deliver compiled, signed DLL”* goes into **v2**, when we build the Windows build infrastructure.
+✅ **Roadmap item:** *“Deliver compiled, signed DLL”* goes into **v2**, when we
+build the Windows build infrastructure.
 
 ---
 
 ## 5. Validation & Spec Refinement (v1)
-**Goal:** Turn messy natural language into a clear, buildable plugin spec — or politely refuse.
+**Goal:** Turn messy natural language into a clear, buildable plugin spec — or
+politely refuse.
 
 ### 5.1 Guided input (reduce ambiguity)
 Use a guided form plus an optional free-text field:
 - **Trigger:** Create / Update / Delete / Retrieve / Associate / Disassociate
-- **Entity:** (autocomplete when we later pull Dataverse metadata; free text in v1)
+- **Entity:** (autocomplete when we later pull Dataverse metadata; free text in
+  v1)
 - **Stage:** PreValidate / PreOperation / PostOperation
 - **Execution:** Synchronous / Asynchronous (PostOperation)
 - **Conditions:** field changes, attribute filters, simple comparisons
-- **Actions:** set fields, throw exception, simple branching, optional HTTP (paid tier later)
+- **Actions:** set fields, throw exception, simple branching, optional HTTP
+  (paid tier later)
 - **Isolation:** Sandbox (default)
 
 ### 5.2 Multi-layer validation
 - **Syntactic:** required fields, enum ranges, string limits.
-- **Semantic:** incompatible combos (e.g., Update + PreValidate writing to target), missing/unknown attributes (when metadata available).
-- **Safety/policy:** block secrets, unrestricted HTTP, file I/O, infinite loops, profanity/abuse.
-- **Complexity guardrails:** compute a score; free tier allows only simple single-step flows.
+- **Semantic:** incompatible combos (e.g., Update + PreValidate writing to
+  target), missing/unknown attributes (when metadata available).
+- **Safety/policy:** block secrets, unrestricted HTTP, file I/O, infinite
+  loops, profanity/abuse.
+- **Complexity guardrails:** compute a score; free tier allows only simple
+  single-step flows.
 
 Return a machine-readable result:
 ```json
@@ -81,7 +89,9 @@ Return a machine-readable result:
 ```
 
 ### 5.3 Auto-refinement loop (wizard UX)
-If `ok == false` but fixable, present one clarifying question at a time and offer **Quick-Fix** buttons derived from `suggestions`. When enough info is present, produce a normalized spec (our DSL).
+If `ok == false` but fixable, present one clarifying question at a time and
+offer **Quick-Fix** buttons derived from `suggestions`. When enough info is
+present, produce a normalized spec (our DSL).
 
 ### 5.4 Normalized spec (our DSL)
 Example (YAML):
@@ -181,7 +191,10 @@ plugin:
 ```
 
 ### 5.6 Implementation notes
-- **Server:** `/validate` builds `ValidationResult`; `/generate` only accepts a valid DSL + `validationHash`.
+- **Server:** `/validate` builds `ValidationResult`; `/generate` only accepts a
+  valid DSL + `validationHash`.
 - **Client:** React wizard (3–5 steps), inline errors, Quick-Fix buttons.
-- **Storage:** Persist raw input, validation results, normalized spec, and a short audit trail.
-- **Telemetry:** Track rejection causes and questions asked to improve the wizard.
+- **Storage:** Persist raw input, validation results, normalized spec, and a
+  short audit trail.
+- **Telemetry:** Track rejection causes and questions asked to improve the
+  wizard.

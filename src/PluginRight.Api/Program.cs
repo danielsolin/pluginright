@@ -232,6 +232,7 @@ app.MapPost(
             // Normalize output: strip Markdown fences and enforce header
             var code = res.Content ?? string.Empty;
             code = OutputNormalizer.SanitizeCSharp(code);
+            code = OutputNormalizer.SoftWrapComments(code, 100);
             return Results.Text(code, "text/plain", Encoding.UTF8);
         }
         catch (TaskCanceledException)
@@ -383,6 +384,58 @@ static class OutputNormalizer
         // Remove Markdown code fences if present
         trimmed = Fences.Replace(trimmed, string.Empty);
         return trimmed.Trim();
+    }
+
+    // Wraps comment-only lines to a maximum width without touching code semantics
+    public static string SoftWrapComments(string code, int maxWidth)
+    {
+        if (string.IsNullOrEmpty(code)) return code;
+        var sb = new StringBuilder(code.Length + 128);
+        using var reader = new StringReader(code);
+        string? line;
+        while ((line = reader.ReadLine()) is not null)
+        {
+            if (line.TrimStart().StartsWith("//"))
+            {
+                WrapCommentLine(line, maxWidth, sb);
+            }
+            else
+            {
+                sb.AppendLine(line);
+            }
+        }
+        return sb.ToString();
+    }
+
+    private static void WrapCommentLine(string line, int maxWidth, StringBuilder sb)
+    {
+        var leading = line.Substring(0, line.IndexOf(line.TrimStart()));
+        var content = line.TrimStart();
+        // Keep the initial // prefix
+        var prefix = "//";
+        var rest = content.StartsWith("//") ? content.Substring(2).TrimStart() : content;
+        var words = rest.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var current = new StringBuilder();
+        foreach (var w in words)
+        {
+            var candidate = current.Length == 0 ? w : current + " " + w;
+            var fullLen = leading.Length + prefix.Length + 1 + candidate.Length;
+            if (fullLen > maxWidth && current.Length > 0)
+            {
+                sb.AppendLine($"{leading}{prefix} {current}");
+                current.Clear();
+                current.Append(w);
+            }
+            else
+            {
+                if (current.Length == 0) current.Append(w);
+                else { current.Append(' '); current.Append(w); }
+            }
+        }
+        if (current.Length > 0)
+        {
+            sb.AppendLine($"{leading}{prefix} {current}");
+        }
     }
 
     private static string Shorten(string? s, int max)

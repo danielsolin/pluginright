@@ -226,6 +226,85 @@ app.MapPost(
         return Results.Empty;
     });
 
+// Plugin generation (non-streaming)
+app.MapPost(
+    "/v1/plugins/generate",
+    async (
+        IOpenAIClient client,
+        HttpContext ctx) =>
+    {
+        if (!ctx.Request.Headers.TryGetValue("X-Api-Key", out var k)
+            || k != apiKey)
+        {
+            return Results.Unauthorized();
+        }
+
+        // Expect JSON { metadata_yaml: string, user_prompt: string, model?: string }
+        using var doc = await JsonDocument.ParseAsync(
+            ctx.Request.Body,
+            cancellationToken: ctx.RequestAborted);
+
+        var root = doc.RootElement;
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return Results.BadRequest(new { error = "Invalid JSON body" });
+        }
+
+        var metadataYaml = root.TryGetProperty("metadata_yaml", out var my)
+            && my.ValueKind == JsonValueKind.String
+            ? my.GetString() ?? string.Empty
+            : string.Empty;
+
+        var userPrompt = root.TryGetProperty("user_prompt", out var up)
+            && up.ValueKind == JsonValueKind.String
+            ? up.GetString() ?? string.Empty
+            : string.Empty;
+
+        var model = root.TryGetProperty("model", out var m)
+            && m.ValueKind == JsonValueKind.String
+            ? (m.GetString() ?? string.Empty)
+            : string.Empty;
+
+        if (string.IsNullOrWhiteSpace(userPrompt))
+        {
+            return Results.BadRequest(new { error = "user_prompt is required" });
+        }
+
+        var sys = PromptBuilder.BuildSystemPrompt();
+        var user = PromptBuilder.BuildUserPrompt(metadataYaml, userPrompt);
+
+        var req = new ChatRequest(
+            string.IsNullOrWhiteSpace(model)
+                ? defaultModel
+                : model,
+            new[]
+            {
+                new ChatMessage("system", sys),
+                new ChatMessage("user", user)
+            },
+            Stream: false);
+
+        Log.Information(
+            "Gen request model={Model} metaLen={Meta} promptLen={PL}",
+            req.Model,
+            metadataYaml?.Length ?? 0,
+            userPrompt.Length);
+
+        try
+        {
+            var res = await client.CompleteAsync(req, ctx.RequestAborted);
+            // Return plain text C#
+            return Results.Text(
+                res.Content ?? string.Empty,
+                "text/plain",
+                Encoding.UTF8);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode.HasValue)
+        {
+            return Results.StatusCode((int)ex.StatusCode!.Value);
+        }
+    });
+
 app.Run();
 
 // --- local client impl ---
@@ -293,3 +372,82 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
         return new ChatResponse(content, pt, ctoks);
     }
 }
+
+// --- prompt helpers ---
+static class PromptBuilder
+{
+    public static string BuildSystemPrompt()
+    {
+        return string.Join('\n', new[]
+        {
+            "You are an expert Microsoft Dataverse (Dynamics 365 CE) plugin developer.",
+            "Produce a single, production-quality C# file that implements " +
+            "Microsoft.Xrm.Sdk.IPlugin.",
+            "",
+            "Hard rules:",
+            "- Output only raw C# code. No Markdown. No explanations. No scaffolding.",
+            "- Use Microsoft.Xrm.Sdk; no external packages; no early-bound types.",
+            "- Implement Execute(IServiceProvider) with robust null/type checks.",
+            "- Use ITracingService for logging; avoid PII in logs.",
+            "- Get context via IPluginExecutionContext; " +
+            "IOrganizationServiceFactory → IOrganizationService.",
+            "- Use Target and Pre/Post Entity Images when appropriate.",
+            "- Handle wrong message/primary entity safely and " +
+            "exit early when not applicable.",
+            "- Favor QueryExpression and ColumnSet; avoid deprecated APIs.",
+            "- Add clear comments at top describing purpose, trigger " +
+            "(Message, Stage, Entity), and assumptions.",
+            "- Follow clean structure: usings, namespace, class, Execute, helpers.",
+            "- Return fast; catch and rethrow InvalidPluginExecutionException " +
+            "with a clear message.",
+            "",
+            "Project targets:",
+            "- .NET Framework for Dataverse plugins (use compatible language features).",
+            "- Namespace: Company.Plugins (or reasonable default).",
+            "- Class name: derived from the user goal " +
+            "(e.g., ContactEmailToAccountSyncPlugin).",
+            "",
+            "Validation checklist before returning:",
+            "- Correct IPlugin signature",
+            "- Tracing starts and finishes major steps",
+            "- Guards for null Target, wrong entity, missing attributes",
+            "- Comments and assumptions present",
+            "- No Markdown, only C# source"
+        });
+    }
+
+    public static string BuildUserPrompt(string metadataYaml, string userPrompt)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine(
+            "Generate a Dynamics 365 plugin that implements the " +
+            "IPlugin interface.");
+        sb.AppendLine();
+        sb.AppendLine("Metadata (YAML):");
+        sb.AppendLine(metadataYaml ?? string.Empty);
+        sb.AppendLine();
+        sb.AppendLine("User goal:");
+        sb.AppendLine(userPrompt);
+        sb.AppendLine();
+        sb.AppendLine("Requirements:");
+        sb.AppendLine("- Use IPluginExecutionContext and IServiceProvider correctly");
+        sb.AppendLine("- Use TracingService for logging");
+        sb.AppendLine("- Logical and clean structure");
+        sb.AppendLine("- Reasonable null and type checks");
+        sb.AppendLine("- Proper use of Target and pre/post entity images if needed");
+        sb.AppendLine("- Well-written comments explaining the purpose of the code");
+        sb.AppendLine();
+        sb.AppendLine("Registration hints (infer and document in comments):");
+        sb.AppendLine("- Message (Create/Update/Delete)");
+        sb.AppendLine("- Stage (PreValidation/PreOperation/PostOperation)");
+        sb.AppendLine("- Primary entity");
+        sb.AppendLine("- Filtering attributes");
+        sb.AppendLine("- Required pre/post images");
+        sb.AppendLine();
+        sb.AppendLine("Only output a single C# file. No Markdown. No extra text.");
+        return sb.ToString();
+    }
+}
+
+// Expose the entry point class for WebApplicationFactory in tests
+public partial class Program { }

@@ -1,11 +1,11 @@
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.Configuration;
 
 [Collection("OpenAI")] // serialize external calls in this group
 public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
@@ -14,9 +14,9 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
 
     public RealOpenAITests(WebApplicationFactory<Program> factory)
     {
-        var repoRoot = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..", "..", "..", "..", ".."));
+        var repoRoot = Path.GetFullPath(
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..")
+        );
         var keyPath = Path.Combine(repoRoot, "Secrets", "openai.key");
         string? key = null;
         if (File.Exists(keyPath))
@@ -27,17 +27,21 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
         }
 
         _factory = factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((ctx, cfg) =>
+        {
+            builder.ConfigureAppConfiguration(
+                (ctx, cfg) =>
                 {
-                    cfg.AddInMemoryCollection(new Dictionary<string, string?>
-                    {
-                        ["OpenAI:ApiKey"] = key,
-                        // Avoid fixed port binding when running tests
-                        ["Urls"] = "http://127.0.0.1:0"
-                    });
-                });
-            });
+                    cfg.AddInMemoryCollection(
+                        new Dictionary<string, string?>
+                        {
+                            ["OpenAI:ApiKey"] = key,
+                            // Avoid fixed port binding when running tests
+                            ["Urls"] = "http://127.0.0.1:0",
+                        }
+                    );
+                }
+            );
+        });
     }
 
     [OpenAIRequiredFact]
@@ -47,15 +51,15 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
         client.DefaultRequestHeaders.Add("X-Api-Key", "dev");
 
         var metadata =
-            @"entities:\n  - logicalName: account\n    attributes:\n      - name: name\n" +
-            @"        type: string\n      - name: primarycontactid\n        type: lookup\n  - logicalName: contact\n" +
-            @"    attributes:\n      - name: emailaddress1\n        type: string\n      - name: parentcustomerid\n        type: customer";
+            @"entities:\n  - logicalName: account\n    attributes:\n      - name: name\n"
+            + @"        type: string\n      - name: primarycontactid\n        type: lookup\n  - logicalName: contact\n"
+            + @"    attributes:\n      - name: emailaddress1\n        type: string\n      - name: parentcustomerid\n        type: customer";
 
         var body = new
         {
             metadata_yaml = metadata,
-            user_prompt = "On Account Update, if name changes, copy to all child Contacts \n" +
-                          "and append domain from emailaddress1 when missing. PostOperation.",
+            user_prompt = "On Account Update, if name changes, copy to all child Contacts \n"
+                + "and append domain from emailaddress1 when missing. PostOperation.",
         };
 
         using var resp = await client.PostAsync(
@@ -63,7 +67,9 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
             new StringContent(
                 JsonSerializer.Serialize(body),
                 Encoding.UTF8,
-                "application/json"));
+                "application/json"
+            )
+        );
 
         Assert.True(resp.IsSuccessStatusCode, $"HTTP {(int)resp.StatusCode}");
         var text = await resp.Content.ReadAsStringAsync();
@@ -81,7 +87,8 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
         // Resolve to tests root: tests/Results/<timestamp>
         // AppContext.BaseDirectory = tests/PluginRight.Tests/bin/Debug/netX
         var projDir = Path.GetFullPath(
-            Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..")
+        );
         var testsRoot = Path.GetFullPath(Path.Combine(projDir, ".."));
         var root = Path.Combine(testsRoot, "Results");
         var stamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
@@ -98,8 +105,8 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
             // Roslyn-based whitespace normalization
             var tree = CSharpSyntaxTree.ParseText(
                 code,
-                new CSharpParseOptions(
-                    languageVersion: LanguageVersion.CSharp8));
+                new CSharpParseOptions(languageVersion: LanguageVersion.CSharp8)
+            );
             var root = tree.GetRoot();
             var normalized = root.NormalizeWhitespace();
             return normalized.ToFullString();

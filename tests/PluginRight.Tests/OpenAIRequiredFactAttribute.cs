@@ -4,9 +4,9 @@ public sealed class OpenAIRequiredFactAttribute : FactAttribute
 {
     public OpenAIRequiredFactAttribute()
     {
-        var repoRoot = Path.GetFullPath(Path.Combine(
-            AppContext.BaseDirectory,
-            "..", "..", "..", "..", ".."));
+        var repoRoot = Path.GetFullPath(
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..")
+        );
         var keyPath = Path.Combine(repoRoot, "Secrets", "openai.key");
         string? key = null;
         if (File.Exists(keyPath))
@@ -19,8 +19,8 @@ public sealed class OpenAIRequiredFactAttribute : FactAttribute
         if (string.IsNullOrWhiteSpace(key))
         {
             Skip =
-                "No OpenAI key. Create Secrets/openai.key at repo root " +
-                "with your API key (first line).";
+                "No OpenAI key. Create Secrets/openai.key at repo root "
+                + "with your API key (first line).";
         }
     }
 }

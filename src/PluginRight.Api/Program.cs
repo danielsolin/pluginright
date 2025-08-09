@@ -1,11 +1,11 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.RateLimiting;
 using PluginRight.Core.OpenAI;
@@ -14,9 +14,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // logging
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 builder.Host.UseSerilog();
 
 // config from appsettings
@@ -30,16 +28,16 @@ var openAiKey = cfg["OpenAI:ApiKey"] ?? "";
 if (string.IsNullOrWhiteSpace(openAiKey))
 {
     // Try repo-root Secrets/openai.key (not checked in)
-    var repoRoot = Path.GetFullPath(Path.Combine(
-        AppContext.BaseDirectory,
-        "..", "..", "..", "..", ".."));
+    var repoRoot = Path.GetFullPath(
+        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..")
+    );
     var keyPath = Path.Combine(repoRoot, "Secrets", "openai.key");
     if (File.Exists(keyPath))
     {
-        openAiKey = File.ReadAllLines(keyPath)
-            .Select(l => l.Trim())
-            .FirstOrDefault(l => !string.IsNullOrEmpty(l))
-            ?? "";
+        openAiKey =
+            File.ReadAllLines(keyPath)
+                .Select(l => l.Trim())
+                .FirstOrDefault(l => !string.IsNullOrEmpty(l)) ?? "";
     }
 }
 var defaultModel = cfg["OpenAI:DefaultModel"] ?? "gpt-4o-mini";
@@ -47,39 +45,49 @@ var openAiBase = cfg["OpenAI:BaseUrl"] ?? "https://api.openai.com/";
 
 // services
 builder.Services.AddRateLimiter(_ =>
-    _.AddFixedWindowLimiter("api", o =>
-    {
-        o.PermitLimit = 30;
-        o.Window = TimeSpan.FromSeconds(10);
-    }));
+    _.AddFixedWindowLimiter(
+        "api",
+        o =>
+        {
+            o.PermitLimit = 30;
+            o.Window = TimeSpan.FromSeconds(10);
+        }
+    )
+);
 
-builder.Services.AddHttpClient("openai", c =>
-{
-    c.BaseAddress = new Uri(openAiBase);
-    c.DefaultRequestHeaders.Authorization =
-        new AuthenticationHeaderValue("Bearer", openAiKey);
-    c.Timeout = TimeSpan.FromSeconds(60);
-});
+builder.Services.AddHttpClient(
+    "openai",
+    c =>
+    {
+        c.BaseAddress = new Uri(openAiBase);
+        c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            openAiKey
+        );
+        c.Timeout = TimeSpan.FromSeconds(60);
+    }
+);
 
 builder.Services.AddScoped<IOpenAIClient, SimpleOpenAIClient>();
 
 var app = builder.Build();
 app.UseRateLimiter();
 
-app.MapGet("/health/live",
-    () => Results.Ok(new { ok = true }));
+app.MapGet("/health/live", () => Results.Ok(new { ok = true }));
 
-app.MapGet("/health/ready",
-    () => Results.Ok(new { ok = !string.IsNullOrWhiteSpace(openAiKey) }));
+app.MapGet(
+    "/health/ready",
+    () => Results.Ok(new { ok = !string.IsNullOrWhiteSpace(openAiKey) })
+);
 
 app.MapPost(
     "/v1/ai/complete",
-    async (ChatRequest payload,
-           IOpenAIClient client,
-           HttpContext ctx) =>
+    async (ChatRequest payload, IOpenAIClient client, HttpContext ctx) =>
     {
-        if (!ctx.Request.Headers.TryGetValue("X-Api-Key", out var k)
-            || k != apiKey)
+        if (
+            !ctx.Request.Headers.TryGetValue("X-Api-Key", out var k)
+            || k != apiKey
+        )
         {
             return Results.Unauthorized();
         }
@@ -94,18 +102,24 @@ app.MapPost(
             Log.Information(
                 "AI request model={Model} messages={Count}",
                 model,
-                payload.Messages?.Count ?? 0);
+                payload.Messages?.Count ?? 0
+            );
 
             var res = await client.CompleteAsync(
-                payload with { Model = model },
-                ctx.RequestAborted);
+                payload with
+                {
+                    Model = model,
+                },
+                ctx.RequestAborted
+            );
 
             var elapsed = DateTime.UtcNow - start;
             Log.Information(
                 "AI response tokens p={PT} c={CT} in {Ms}ms",
                 res.PromptTokens,
                 res.CompletionTokens,
-                (int)elapsed.TotalMilliseconds);
+                (int)elapsed.TotalMilliseconds
+            );
 
             return Results.Json(res);
         }
@@ -117,22 +131,21 @@ app.MapPost(
         catch (HttpRequestException ex) when (ex.StatusCode.HasValue)
         {
             var code = ex.StatusCode.Value;
-            Log.Warning(
-                ex,
-                "OpenAI HTTP error {Status}",
-                (int)code);
+            Log.Warning(ex, "OpenAI HTTP error {Status}", (int)code);
 
             return code switch
             {
-                HttpStatusCode.TooManyRequests
-                    => Results.StatusCode(StatusCodes.Status429TooManyRequests),
-                HttpStatusCode.Unauthorized
-                    => Results.StatusCode(StatusCodes.Status401Unauthorized),
-                HttpStatusCode.Forbidden
-                    => Results.StatusCode(StatusCodes.Status403Forbidden),
-                HttpStatusCode.BadRequest
-                    => Results.BadRequest(),
-                _ => Results.StatusCode(StatusCodes.Status502BadGateway)
+                HttpStatusCode.TooManyRequests => Results.StatusCode(
+                    StatusCodes.Status429TooManyRequests
+                ),
+                HttpStatusCode.Unauthorized => Results.StatusCode(
+                    StatusCodes.Status401Unauthorized
+                ),
+                HttpStatusCode.Forbidden => Results.StatusCode(
+                    StatusCodes.Status403Forbidden
+                ),
+                HttpStatusCode.BadRequest => Results.BadRequest(),
+                _ => Results.StatusCode(StatusCodes.Status502BadGateway),
             };
         }
         catch (Exception ex)
@@ -140,25 +153,28 @@ app.MapPost(
             Log.Error(ex, "AI request failed");
             return Results.StatusCode(StatusCodes.Status500InternalServerError);
         }
-    });
+    }
+);
 
 // Plugin generation
 app.MapPost(
     "/v1/plugins/generate",
-    async (
-        IOpenAIClient client,
-        HttpContext ctx) =>
+    async (IOpenAIClient client, HttpContext ctx) =>
     {
-        if (!ctx.Request.Headers.TryGetValue("X-Api-Key", out var k)
-            || k != apiKey)
+        if (
+            !ctx.Request.Headers.TryGetValue("X-Api-Key", out var k)
+            || k != apiKey
+        )
         {
             return Results.Unauthorized();
         }
 
-        // Expect JSON { metadata_yaml: string, user_prompt: string, model?: string }
+        // Expect JSON
+        // { metadata_yaml: string, user_prompt: string, model?: string }
         using var doc = await JsonDocument.ParseAsync(
             ctx.Request.Body,
-            cancellationToken: ctx.RequestAborted);
+            cancellationToken: ctx.RequestAborted
+        );
 
         var root = doc.RootElement;
         if (root.ValueKind != JsonValueKind.Object)
@@ -166,44 +182,49 @@ app.MapPost(
             return Results.BadRequest(new { error = "Invalid JSON body" });
         }
 
-        var metadataYaml = root.TryGetProperty("metadata_yaml", out var my)
+        var metadataYaml =
+            root.TryGetProperty("metadata_yaml", out var my)
             && my.ValueKind == JsonValueKind.String
-            ? my.GetString() ?? string.Empty
-            : string.Empty;
+                ? my.GetString() ?? string.Empty
+                : string.Empty;
 
-        var userPrompt = root.TryGetProperty("user_prompt", out var up)
+        var userPrompt =
+            root.TryGetProperty("user_prompt", out var up)
             && up.ValueKind == JsonValueKind.String
-            ? up.GetString() ?? string.Empty
-            : string.Empty;
+                ? up.GetString() ?? string.Empty
+                : string.Empty;
 
-        var model = root.TryGetProperty("model", out var m)
+        var model =
+            root.TryGetProperty("model", out var m)
             && m.ValueKind == JsonValueKind.String
-            ? (m.GetString() ?? string.Empty)
-            : string.Empty;
+                ? (m.GetString() ?? string.Empty)
+                : string.Empty;
 
         if (string.IsNullOrWhiteSpace(userPrompt))
         {
-            return Results.BadRequest(new { error = "user_prompt is required" });
+            return Results.BadRequest(
+                new { error = "user_prompt is required" }
+            );
         }
 
         var sys = PromptBuilder.BuildSystemPrompt();
         var user = PromptBuilder.BuildUserPrompt(metadataYaml, userPrompt);
 
         var req = new ChatRequest(
-            string.IsNullOrWhiteSpace(model)
-                ? defaultModel
-                : model,
+            string.IsNullOrWhiteSpace(model) ? defaultModel : model,
             new[]
             {
                 new ChatMessage("system", sys),
-                new ChatMessage("user", user)
-            });
+                new ChatMessage("user", user),
+            }
+        );
 
         Log.Information(
             "Gen request model={Model} metaLen={Meta} promptLen={PL}",
             req.Model,
             metadataYaml?.Length ?? 0,
-            userPrompt.Length);
+            userPrompt.Length
+        );
 
         try
         {
@@ -214,7 +235,8 @@ app.MapPost(
             code = OutputNormalizer.EnsureHeader(
                 code,
                 metadataYaml,
-                userPrompt);
+                userPrompt
+            );
             return Results.Text(code, "text/plain", Encoding.UTF8);
         }
         catch (TaskCanceledException)
@@ -225,7 +247,8 @@ app.MapPost(
         {
             return Results.StatusCode((int)ex.StatusCode!.Value);
         }
-    });
+    }
+);
 
 app.Run();
 
@@ -236,13 +259,15 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
 
     public async Task<ChatResponse> CompleteAsync(
         ChatRequest r,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var http = _f.CreateClient("openai");
 
         using var msg = new HttpRequestMessage(
             HttpMethod.Post,
-            "v1/chat/completions")
+            "v1/chat/completions"
+        )
         {
             Content = new StringContent(
                 JsonSerializer.Serialize(
@@ -252,35 +277,35 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
                         messages = r.Messages.Select(m => new
                         {
                             role = m.Role,
-                            content = m.Content
-                        })
-                    }),
+                            content = m.Content,
+                        }),
+                    }
+                ),
                 Encoding.UTF8,
-                new MediaTypeHeaderValue("application/json"))
+                new MediaTypeHeaderValue("application/json")
+            ),
         };
 
         using var resp = await http.SendAsync(msg, ct);
 
         if (!resp.IsSuccessStatusCode)
         {
-            var bodyText = await resp.Content
-                .ReadAsStringAsync(ct);
+            var bodyText = await resp.Content.ReadAsStringAsync(ct);
             throw new HttpRequestException(
                 $"OpenAI error {(int)resp.StatusCode}: {bodyText}",
                 null,
-                resp.StatusCode);
+                resp.StatusCode
+            );
         }
 
         using var s = await resp.Content.ReadAsStreamAsync(ct);
-        using var doc = await JsonDocument.ParseAsync(
-            s,
-            cancellationToken: ct);
+        using var doc = await JsonDocument.ParseAsync(s, cancellationToken: ct);
 
-        var content = doc.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString() ?? "";
+        var content =
+            doc.RootElement.GetProperty("choices")[0]
+                .GetProperty("message")
+                .GetProperty("content")
+                .GetString() ?? "";
 
         int? pt = doc.RootElement.TryGetProperty("usage", out var u)
             ? u.GetProperty("prompt_tokens").GetInt32()
@@ -297,85 +322,50 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
 // --- prompt helpers ---
 static class PromptBuilder
 {
+    private static string? ReadPromptFile(string fileName)
+    {
+        try
+        {
+            var baseDir = AppContext.BaseDirectory;
+            var path = Path.Combine(baseDir, "Prompts", fileName);
+            if (File.Exists(path))
+            {
+                return File.ReadAllText(path);
+            }
+        }
+        catch
+        {
+            // ignore and fallback
+        }
+        return null;
+    }
+
     public static string BuildSystemPrompt()
     {
-        return string.Join('\n', new[]
+        var fromFile = ReadPromptFile("system_prompt.txt");
+        if (string.IsNullOrWhiteSpace(fromFile))
         {
-            "You are an expert Microsoft Dataverse (Dynamics 365 CE) plugin developer.",
-            "Produce a single, production-quality C# file that implements " +
-            "Microsoft.Xrm.Sdk.IPlugin.",
-            "",
-            "Hard rules:",
-            "- Output only raw C# code. No Markdown. No explanations. No scaffolding.",
-            "- Use Microsoft.Xrm.Sdk; no external packages; no early-bound types.",
-            "- Implement Execute(IServiceProvider) with robust null/type checks.",
-            "- Use ITracingService for logging; avoid PII in logs.",
-            "- Get context via IPluginExecutionContext; " +
-            "IOrganizationServiceFactory → IOrganizationService.",
-            "- Use Target and Pre/Post Entity Images when appropriate.",
-            "- Handle wrong message/primary entity safely and " +
-            "exit early when not applicable.",
-            "- Favor QueryExpression and ColumnSet; avoid deprecated APIs.",
-            "- At the very top, add a standardized header comment block EXACTLY in " +
-            "this format before the namespace:",
-            "  // === PluginRight Header ===",
-            "  // Purpose: <short description>",
-            "  // Message: <Create|Update|Delete|...>",
-            "  // Stage: <PreValidate|PreOperation|PostOperation>",
-            "  // Entity: <logical name>",
-            "  // Filtering Attributes: <comma-separated or none>",
-            "  // Pre-Images: <name(s) or none>",
-            "  // Post-Images: <name(s) or none>",
-            "  // Assumptions: <concise notes>",
-            "- Follow clean structure: usings, namespace, class, Execute, helpers.",
-            "- Return fast; catch and rethrow InvalidPluginExecutionException " +
-            "with a clear message.",
-            "",
-            "Project targets:",
-            "- .NET Framework for Dataverse plugins (use compatible language features).",
-            "- Namespace: Company.Plugins (or reasonable default).",
-            "- Class name: derived from the user goal " +
-            "(e.g., ContactEmailToAccountSyncPlugin).",
-            "",
-            "Validation checklist before returning:",
-            "- Correct IPlugin signature",
-            "- Tracing starts and finishes major steps",
-            "- Guards for null Target, wrong entity, missing attributes",
-            "- Comments and assumptions present",
-            "- No Markdown, only C# source"
-        });
+            throw new InvalidOperationException(
+                "Missing system prompt: Prompts/system_prompt.txt"
+            );
+        }
+        return fromFile.Trim();
     }
 
     public static string BuildUserPrompt(string metadataYaml, string userPrompt)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine(
-            "Generate a Dynamics 365 plugin that implements the " +
-            "IPlugin interface.");
-        sb.AppendLine();
-        sb.AppendLine("Metadata (YAML):");
-        sb.AppendLine(metadataYaml ?? string.Empty);
-        sb.AppendLine();
-        sb.AppendLine("User goal:");
-        sb.AppendLine(userPrompt);
-        sb.AppendLine();
-        sb.AppendLine("Requirements:");
-        sb.AppendLine("- Use IPluginExecutionContext and IServiceProvider correctly");
-        sb.AppendLine("- Use TracingService for logging");
-        sb.AppendLine("- Logical and clean structure");
-        sb.AppendLine("- Reasonable null and type checks");
-        sb.AppendLine("- Proper use of Target and pre/post entity images if needed");
-        sb.AppendLine("- Well-written comments explaining the purpose of the code");
-        sb.AppendLine();
-        sb.AppendLine("Registration hints (infer and document in comments):");
-        sb.AppendLine("- Message (Create/Update/Delete)");
-        sb.AppendLine("- Stage (PreValidation/PreOperation/PostOperation)");
-        sb.AppendLine("- Primary entity");
-        sb.AppendLine("- Filtering attributes");
-        sb.AppendLine("- Required pre/post images");
-        sb.AppendLine();
-        sb.AppendLine("Only output a single C# file. No Markdown. No extra text.");
-        return sb.ToString();
+        var tmpl = ReadPromptFile("user_prompt_template.txt");
+        if (string.IsNullOrWhiteSpace(tmpl))
+        {
+            throw new InvalidOperationException(
+                "Missing user prompt template: " +
+                "Prompts/user_prompt_template.txt"
+            );
+        }
+        return tmpl
+            .Replace("{{METADATA_YAML}}", metadataYaml ?? string.Empty)
+            .Replace("{{USER_PROMPT}}", userPrompt ?? string.Empty)
+            .Trim();
     }
 }
 
@@ -387,11 +377,13 @@ static class OutputNormalizer
 {
     private static readonly Regex Fences = new(
         @"^```[a-zA-Z]*\s*|\s*```\s*$",
-        RegexOptions.Multiline | RegexOptions.Compiled);
+        RegexOptions.Multiline | RegexOptions.Compiled
+    );
 
     public static string SanitizeCSharp(string code)
     {
-        if (string.IsNullOrWhiteSpace(code)) return string.Empty;
+        if (string.IsNullOrWhiteSpace(code))
+            return string.Empty;
         var trimmed = code.Trim();
         // Remove Markdown code fences if present
         trimmed = Fences.Replace(trimmed, string.Empty);
@@ -401,12 +393,15 @@ static class OutputNormalizer
     public static string EnsureHeader(
         string code,
         string? metadataYaml,
-        string userPrompt)
+        string userPrompt
+    )
     {
-        if (string.IsNullOrWhiteSpace(code)) return code;
+        if (string.IsNullOrWhiteSpace(code))
+            return code;
 
         // If header already present, leave as is
-        if (code.Contains("// === PluginRight Header ===")) return code;
+        if (code.Contains("// === PluginRight Header ==="))
+            return code;
 
         var header = new StringBuilder();
         header.AppendLine("// === PluginRight Header ===");
@@ -425,7 +420,8 @@ static class OutputNormalizer
 
     private static string Shorten(string? s, int max)
     {
-        if (string.IsNullOrEmpty(s)) return string.Empty;
+        if (string.IsNullOrEmpty(s))
+            return string.Empty;
         s = s.Replace("\r", " ").Replace("\n", " ").Trim();
         return s.Length <= max ? s : s.Substring(0, max) + "...";
     }

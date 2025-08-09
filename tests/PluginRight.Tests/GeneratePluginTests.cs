@@ -29,7 +29,8 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
         // Use appsettings ApiKey default "dev"
         client.DefaultRequestHeaders.Add("X-Api-Key", "dev");
 
-        var metadata = @"entities:
+        var metadata =
+            @"entities:
   - logicalName: account
     attributes:
       - name: name
@@ -46,11 +47,10 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
         var body = new
         {
             metadata_yaml = metadata,
-            user_prompt =
-                "On Account Update, when creditlimit changes, " +
-                "propagate a flag to all related Contacts via parentcustomerid; " +
-                "if emailaddress1 is empty, log a warning. Use PostOperation.",
-            model = "test-model"
+            user_prompt = "On Account Update, when creditlimit changes, "
+                + "propagate a flag to all related Contacts via parentcustomerid; "
+                + "if emailaddress1 is empty, log a warning. Use PostOperation.",
+            model = "test-model",
         };
 
         var resp = await client.PostAsync(
@@ -58,10 +58,14 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
             new StringContent(
                 JsonSerializer.Serialize(body),
                 Encoding.UTF8,
-                "application/json"));
+                "application/json"
+            )
+        );
 
-        Assert.True(resp.IsSuccessStatusCode,
-            $"Expected 2xx, got {(int)resp.StatusCode}");
+        Assert.True(
+            resp.IsSuccessStatusCode,
+            $"Expected 2xx, got {(int)resp.StatusCode}"
+        );
 
         var text = await resp.Content.ReadAsStringAsync();
 
@@ -71,7 +75,8 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("IPlugin", text);
         Assert.Contains(
             "public void Execute(IServiceProvider serviceProvider)",
-            text);
+            text
+        );
 
         // Ensure no markdown fences or explanations leaked
         Assert.DoesNotContain("```", text);
@@ -82,10 +87,12 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
     {
         public Task<ChatResponse> CompleteAsync(
             ChatRequest r,
-            CancellationToken ct = default)
+            CancellationToken ct = default
+        )
         {
             // Return deterministic minimal plugin code that meets constraints
-            var code = @"using System;
+            var code =
+                @"using System;
 using Microsoft.Xrm.Sdk;
 
 namespace Company.Plugins

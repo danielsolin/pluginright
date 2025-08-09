@@ -60,6 +60,7 @@ builder.Services.AddHttpClient(
 );
 
 builder.Services.AddScoped<IOpenAIClient, SimpleOpenAIClient>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

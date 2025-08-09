@@ -2,13 +2,17 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 using PluginRight.Core.OpenAI;
 
 namespace PluginRight.Api.Infrastructure;
 
-sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
+sealed class SimpleOpenAIClient(IHttpClientFactory f, IHttpContextAccessor ctx) : IOpenAIClient
 {
     private readonly IHttpClientFactory _f = f;
+    private readonly IHttpContextAccessor _ctx = ctx;
 
     public async Task<ChatResponse> CompleteAsync(
         ChatRequest r,
@@ -35,9 +39,25 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
                     }
                 ),
                 Encoding.UTF8,
-                new MediaTypeHeaderValue("application/json")
+                "application/json"
             ),
         };
+
+        // If tests pass a destination directory via header, save the raw request JSON
+        try
+        {
+            var dir = _ctx.HttpContext?.Request?.Headers?["X-Artifact-Dir"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                Directory.CreateDirectory(dir!);
+                var reqJson = await msg.Content.ReadAsStringAsync(ct);
+                File.WriteAllText(Path.Combine(dir!, "request.json"), reqJson, Encoding.UTF8);
+            }
+        }
+        catch
+        {
+            // non-fatal diagnostics
+        }
 
         using var resp = await http.SendAsync(msg, ct);
 
@@ -51,8 +71,25 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
             );
         }
 
-        using var s = await resp.Content.ReadAsStreamAsync(ct);
-        using var doc = await JsonDocument.ParseAsync(s, cancellationToken: ct);
+        // Read raw JSON response as text
+        var raw = await resp.Content.ReadAsStringAsync(ct);
+
+        // Save raw response JSON if requested
+        try
+        {
+            var dir = _ctx.HttpContext?.Request?.Headers?["X-Artifact-Dir"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                Directory.CreateDirectory(dir!);
+                File.WriteAllText(Path.Combine(dir!, "response.json"), raw, Encoding.UTF8);
+            }
+        }
+        catch
+        {
+            // non-fatal diagnostics
+        }
+
+        using var doc = JsonDocument.Parse(raw);
 
         var content =
             doc.RootElement.GetProperty("choices")[0]

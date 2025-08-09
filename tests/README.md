@@ -4,7 +4,8 @@ This repository writes all test outputs and generated artifacts under the `tests
 
 - Generated artifacts (from real OpenAI tests):
   - Saved under `tests/Results/<UTC_TIMESTAMP>/`
-  - File: `generate.cs` (auto-formatted C#)
+    - `request.json` — full original JSON request payload (raw)
+    - `response.json` — full original JSON response body (raw)
 
 - Test run results (TRX):
   - Emitted under `tests/Results/`

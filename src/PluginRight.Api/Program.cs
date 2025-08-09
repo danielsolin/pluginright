@@ -42,6 +42,8 @@ if (string.IsNullOrWhiteSpace(openAiKey))
 }
 var defaultModel = cfg["OpenAI:DefaultModel"] ?? "gpt-4o-mini";
 var openAiBase = cfg["OpenAI:BaseUrl"] ?? "https://api.openai.com/";
+var openAiTimeoutSeconds =
+    int.TryParse(cfg["OpenAI:HttpTimeoutSeconds"], out var t) && t > 0 ? t : 60;
 
 // services
 builder.Services.AddRateLimiter(_ =>
@@ -64,7 +66,7 @@ builder.Services.AddHttpClient(
             "Bearer",
             openAiKey
         );
-        c.Timeout = TimeSpan.FromSeconds(60);
+        c.Timeout = TimeSpan.FromSeconds(openAiTimeoutSeconds);
     }
 );
 

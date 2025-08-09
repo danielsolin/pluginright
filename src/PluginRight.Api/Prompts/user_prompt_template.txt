@@ -1,3 +1,5 @@
+Generate a Dynamics 365 plugin implementing IPlugin.
+
 Metadata (YAML):
 {{METADATA_YAML}}
 

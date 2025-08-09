@@ -1,0 +1,3 @@
+When a Contact record is updated and the emailaddress1 field
+has changed, copy the new email address to the parent Account
+(via parentcustomerid).

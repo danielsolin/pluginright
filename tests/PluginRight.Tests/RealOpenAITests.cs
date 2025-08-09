@@ -4,6 +4,8 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 [Collection("OpenAI")] // serialize external calls in this group
 public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
@@ -64,9 +66,10 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
                 "application/json"));
 
         Assert.True(resp.IsSuccessStatusCode, $"HTTP {(int)resp.StatusCode}");
-        var text = await resp.Content.ReadAsStringAsync();
+    var text = await resp.Content.ReadAsStringAsync();
+    var pretty = TryFormatCSharp(text);
 
-        SaveArtifact("generate", text);
+    SaveArtifact("generate", pretty);
 
         Assert.Contains("IPlugin", text);
         Assert.Contains("Execute(IServiceProvider", text);
@@ -87,5 +90,24 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
         Directory.CreateDirectory(dir);
         var path = Path.Combine(dir, kind + ".cs");
         File.WriteAllText(path, content, Encoding.UTF8);
+    }
+
+    private static string TryFormatCSharp(string code)
+    {
+        try
+        {
+            // Roslyn-based whitespace normalization
+            var tree = CSharpSyntaxTree.ParseText(
+                code,
+                new CSharpParseOptions(
+                    languageVersion: LanguageVersion.CSharp8));
+            var root = tree.GetRoot();
+            var normalized = root.NormalizeWhitespace();
+            return normalized.ToFullString();
+        }
+        catch
+        {
+            return code; // fall back to raw
+        }
     }
 }

@@ -56,6 +56,8 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
             metadata_yaml = metadata,
             user_prompt = "On Account Update, if name changes, copy to all child Contacts \n" +
                           "and append domain from emailaddress1 when missing. PostOperation.",
+            // Use a stable, widely-available model for the test run
+            model = "gpt-4o-mini",
         };
 
         using var resp = await client.PostAsync(

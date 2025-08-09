@@ -108,6 +108,11 @@ app.MapPost(
 
             return Results.Json(res);
         }
+        catch (TaskCanceledException ex)
+        {
+            Log.Warning(ex, "AI request timed out");
+            return Results.StatusCode(StatusCodes.Status504GatewayTimeout);
+        }
         catch (HttpRequestException ex) when (ex.StatusCode.HasValue)
         {
             var code = ex.StatusCode.Value;
@@ -207,6 +212,10 @@ app.MapPost(
                 res.Content ?? string.Empty,
                 "text/plain",
                 Encoding.UTF8);
+        }
+        catch (TaskCanceledException)
+        {
+            return Results.StatusCode(StatusCodes.Status504GatewayTimeout);
         }
         catch (HttpRequestException ex) when (ex.StatusCode.HasValue)
         {

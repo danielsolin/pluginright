@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+  <!-- Use .runsettings to control TRX output path/name -->
+  <RunSettingsFile>$(MSBuildProjectDirectory)\..\RunSettings.runsettings</RunSettingsFile>
   </PropertyGroup>
 
   <ItemGroup>

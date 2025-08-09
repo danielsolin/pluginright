@@ -46,6 +46,8 @@ node_modules/
 api_key.txt
 .env.local
 .env.*.local
+Secrets/
+tests/PluginRight.Tests/Results/
 
 # Coverage / test output
 coverage/

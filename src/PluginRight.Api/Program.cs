@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.IO;
 using Microsoft.AspNetCore.RateLimiting;
 using PluginRight.Core.OpenAI;
 using Serilog;
@@ -25,6 +26,21 @@ builder.WebHost.UseUrls(urls);
 // settings
 var apiKey = cfg["Api:ApiKey"] ?? "dev";
 var openAiKey = cfg["OpenAI:ApiKey"] ?? "";
+if (string.IsNullOrWhiteSpace(openAiKey))
+{
+    // Try repo-root Secrets/openai.key (not checked in)
+    var repoRoot = Path.GetFullPath(Path.Combine(
+        AppContext.BaseDirectory,
+        "..", "..", "..", "..", ".."));
+    var keyPath = Path.Combine(repoRoot, "Secrets", "openai.key");
+    if (File.Exists(keyPath))
+    {
+        openAiKey = File.ReadAllLines(keyPath)
+            .Select(l => l.Trim())
+            .FirstOrDefault(l => !string.IsNullOrEmpty(l))
+            ?? "";
+    }
+}
 var defaultModel = cfg["OpenAI:DefaultModel"] ?? "gpt-4o-mini";
 var openAiBase = cfg["OpenAI:BaseUrl"] ?? "https://api.openai.com/";
 

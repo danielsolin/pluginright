@@ -1,36 +1,24 @@
-# PluginRight v0.1 – Local Demo
+## PluginRight – Generate Microsoft Dataverse Plugins in Minutes
 
-This is a minimal working prototype of PluginRight – a GPT-assisted C# plugin generator for Microsoft Dataverse (Dynamics 365).
+**PluginRight** makes it easy to create custom Microsoft Dataverse plugins without spending hours writing boilerplate code.
 
-## How it works
+### How it works
+1. **Sign in** with Google or LinkedIn.
+2. **Describe your plugin** in plain English using our guided form.
+3. **Generate & download** your ready-to-use C# project.
+4. *(Pro users)* Compile into a signed DLL ready for registration.
 
-- You provide a plain-English description of what the plugin should do.
-- GPT-4o generates a complete IPlugin C# implementation.
-- Hardcoded metadata is included for now.
+### Free trial
+- 1 free plugin generation when you sign up  
+- No credit card required
 
-## Requirements
+### Pro features
+- Multiple plugin steps per generation
+- More complex logic and conditions
+- Direct DLL build and signing (coming soon)
+- Priority support
 
-- Python 3.8+
-- OpenAI API key with GPT-4 access
-
-## Usage
-
-1. Set your OpenAI API key:
-
-   ```bash
-   export OPENAI_API_KEY=your-key-here
-   ```
-
-2. Run the script:
-
-   ```bash
-   python pluginright.py
-   ```
-
-3. Enter your plugin description (example in `example_prompt.txt`)
-
-## Coming soon
-
-- Real-time metadata fetch via access token
-- Suggested registration step
-- CLI and web interface
+### Why PluginRight?
+- Save time and avoid repetitive coding
+- Get plugins that follow Microsoft best practices
+- Works with any Dataverse or Dynamics 365 environment

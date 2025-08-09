@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\src\PluginRight.Api\PluginRight.Api.csproj" />
   </ItemGroup>
 
+  <!-- Exclude saved artifacts from compilation -->
+  <ItemGroup>
+    <Compile Remove="Results\**\*.cs" />
+    <Compile Remove="Results\*.cs" />
+  </ItemGroup>
+
 </Project>

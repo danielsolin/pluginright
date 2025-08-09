@@ -71,7 +71,6 @@ app.MapGet("/health/live",
 app.MapGet("/health/ready",
     () => Results.Ok(new { ok = !string.IsNullOrWhiteSpace(openAiKey) }));
 
-// Non-streaming completion
 app.MapPost(
     "/v1/ai/complete",
     async (ChatRequest payload,
@@ -97,7 +96,7 @@ app.MapPost(
                 payload.Messages?.Count ?? 0);
 
             var res = await client.CompleteAsync(
-                payload with { Model = model, Stream = false },
+                payload with { Model = model },
                 ctx.RequestAborted);
 
             var elapsed = DateTime.UtcNow - start;
@@ -137,112 +136,7 @@ app.MapPost(
         }
     });
 
-// Streaming SSE endpoint
-app.MapPost(
-    "/v1/ai/stream",
-    async (ChatRequest payload,
-           IHttpClientFactory factory,
-           HttpContext ctx) =>
-    {
-        if (!ctx.Request.Headers.TryGetValue("X-Api-Key", out var k)
-            || k != apiKey)
-        {
-            return Results.Unauthorized();
-        }
-
-        var model = string.IsNullOrWhiteSpace(payload.Model)
-            ? defaultModel
-            : payload.Model;
-
-        var http = factory.CreateClient("openai");
-        using var msg = new HttpRequestMessage(
-            HttpMethod.Post,
-            "v1/chat/completions")
-        {
-            Content = new StringContent(
-                JsonSerializer.Serialize(new
-                {
-                    model,
-                    messages = payload.Messages.Select(m => new
-                    {
-                        role = m.Role,
-                        content = m.Content
-                    }),
-                    stream = true
-                }),
-                Encoding.UTF8,
-                new MediaTypeHeaderValue("application/json"))
-        };
-
-        var resp = await http.SendAsync(
-            msg,
-            HttpCompletionOption.ResponseHeadersRead,
-            ctx.RequestAborted);
-
-        if (!resp.IsSuccessStatusCode)
-        {
-            return Results.StatusCode((int)resp.StatusCode);
-        }
-
-        ctx.Response.Headers.CacheControl = "no-cache";
-        ctx.Response.Headers.Connection = "keep-alive";
-        ctx.Response.ContentType = "text/event-stream";
-
-        await using var stream = await resp.Content
-            .ReadAsStreamAsync(ctx.RequestAborted);
-        using var reader = new StreamReader(stream);
-
-        while (!ctx.RequestAborted.IsCancellationRequested)
-        {
-            var line = await reader.ReadLineAsync();
-            if (line is null) break;
-
-            if (line.Length == 0)
-            {
-                continue;
-            }
-
-            if (line.StartsWith("data:"))
-            {
-                var data = line[5..].Trim();
-                if (data == "[DONE]") break;
-
-                try
-                {
-                    using var doc = JsonDocument.Parse(data);
-                    var hasDelta = doc.RootElement
-                        .GetProperty("choices")[0]
-                        .TryGetProperty("delta", out var delta);
-                    if (!hasDelta) continue;
-
-                    var chunk = delta.TryGetProperty("content", out var c)
-                        ? c.GetString()
-                        : null;
-
-                    if (!string.IsNullOrEmpty(chunk))
-                    {
-                        var sse = $"data: {chunk}\n\n";
-                        var bytes = Encoding.UTF8.GetBytes(sse);
-                        await ctx.Response.Body.WriteAsync(
-                            bytes,
-                            0,
-                            bytes.Length,
-                            ctx.RequestAborted);
-                        await ctx.Response.Body.FlushAsync(
-                            ctx.RequestAborted);
-                    }
-                }
-                catch
-                {
-                    // Ignore malformed chunks
-                }
-            }
-        }
-
-        return Results.Empty;
-    });
-
-// Plugin generation (non-streaming)
+// Plugin generation
 app.MapPost(
     "/v1/plugins/generate",
     async (
@@ -297,8 +191,7 @@ app.MapPost(
             {
                 new ChatMessage("system", sys),
                 new ChatMessage("user", user)
-            },
-            Stream: false);
+            });
 
         Log.Information(
             "Gen request model={Model} metaLen={Meta} promptLen={PL}",
@@ -347,8 +240,7 @@ sealed class SimpleOpenAIClient(IHttpClientFactory f) : IOpenAIClient
                         {
                             role = m.Role,
                             content = m.Content
-                        }),
-                        stream = false
+                        })
                     }),
                 Encoding.UTF8,
                 new MediaTypeHeaderValue("application/json"))

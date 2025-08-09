@@ -69,7 +69,9 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Contains("namespace", text);
         Assert.Contains("class", text);
         Assert.Contains("IPlugin", text);
-        Assert.Contains("public void Execute(IServiceProvider serviceProvider)", text);
+        Assert.Contains(
+            "public void Execute(IServiceProvider serviceProvider)",
+            text);
 
         // Ensure no markdown fences or explanations leaked
         Assert.DoesNotContain("```", text);

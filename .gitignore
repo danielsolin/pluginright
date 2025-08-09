@@ -47,7 +47,7 @@ api_key.txt
 .env.local
 .env.*.local
 Secrets/
-tests/PluginRight.Tests/Results/
+tests/Results/
 
 # Coverage / test output
 coverage/

@@ -66,25 +66,24 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
                 "application/json"));
 
         Assert.True(resp.IsSuccessStatusCode, $"HTTP {(int)resp.StatusCode}");
-    var text = await resp.Content.ReadAsStringAsync();
-    var pretty = TryFormatCSharp(text);
+        var text = await resp.Content.ReadAsStringAsync();
+        var pretty = TryFormatCSharp(text);
 
-    SaveArtifact("generate", pretty);
+        SaveArtifact("generate", pretty);
 
         Assert.Contains("IPlugin", text);
         Assert.Contains("Execute(IServiceProvider", text);
         Assert.DoesNotContain("```", text);
     }
 
-    // streaming tests removed
-
     private static void SaveArtifact(string kind, string content)
     {
-        // Resolve to the test project directory:
-        // bin/Debug/netX -> back to project folder
+        // Resolve to tests root: tests/Results/<timestamp>
+        // AppContext.BaseDirectory = tests/PluginRight.Tests/bin/Debug/netX
         var projDir = Path.GetFullPath(
             Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var root = Path.Combine(projDir, "Results");
+        var testsRoot = Path.GetFullPath(Path.Combine(projDir, ".."));
+        var root = Path.Combine(testsRoot, "Results");
         var stamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
         var dir = Path.Combine(root, stamp);
         Directory.CreateDirectory(dir);

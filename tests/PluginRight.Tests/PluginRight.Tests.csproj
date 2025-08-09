@@ -25,10 +25,13 @@
     <ProjectReference Include="..\..\src\PluginRight.Api\PluginRight.Api.csproj" />
   </ItemGroup>
 
-  <!-- Exclude saved artifacts from compilation -->
+  <!-- Exclude saved artifacts from compilation (tests/Results) -->
   <ItemGroup>
-    <Compile Remove="Results\**\*.cs" />
-    <Compile Remove="Results\*.cs" />
+    <Compile Remove="..\Results\**\*.cs" />
+    <Compile Remove="..\Results\*.cs" />
+  <!-- Legacy path safeguard -->
+  <Compile Remove="Results\**\*.cs" />
+  <Compile Remove="Results\*.cs" />
   </ItemGroup>
 
 </Project>

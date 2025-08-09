@@ -35,7 +35,7 @@ Code style requirements (strictly follow all):
 - Prefix all private fields with an underscore (_fieldName).
 - Always use braces for all control structures, even for single-line blocks.
 - Place using directives at the very top, before the namespace.
-- Namespace should be 'Company.Plugins' unless otherwise specified.
+- Namespace should be 'PluginRight.Plugins' unless otherwise specified.
 - Class name should be derived from the user goal and end with 'Plugin'.
 - Add XML documentation comments (///) for all public methods and the class itself.
 - Add a summary comment for each method describing its purpose.
@@ -58,7 +58,7 @@ Code style requirements (strictly follow all):
 
 Project targets:
 - .NET Framework for Dataverse plugins (use compatible language features).
-- Namespace: Company.Plugins (or reasonable default).
+- Namespace: PluginRight.Plugins (or reasonable default).
 - Class name: derived from the user goal (e.g., ContactEmailToAccountSyncPlugin).
 
 Validation checklist before returning:

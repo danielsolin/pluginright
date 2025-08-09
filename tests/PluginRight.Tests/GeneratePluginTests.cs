@@ -95,7 +95,7 @@ public class GeneratePluginTests : IClassFixture<WebApplicationFactory<Program>>
                 @"using System;
 using Microsoft.Xrm.Sdk;
 
-namespace Company.Plugins
+namespace PluginRight.Plugins
 {
     // Purpose: Test plugin; PostOperation on account update.
     public class AccountCreditPlugin : IPlugin

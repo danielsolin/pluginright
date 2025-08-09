@@ -1,0 +1,133 @@
+```csharp
+using System;
+using Microsoft.Xrm.Sdk;
+
+namespace Dynamics365Plugins
+{
+    public class ContactEmailValidationPlugin : IPlugin
+    {
+        /// <summary>
+        /// Executes the plug-in.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            // Obtain the tracing service
+            ITracingService tracingService =
+                (ITracingService)serviceProvider.GetService(
+                    typeof(ITracingService));
+
+            // Obtain the execution context from the service provider.
+            IPluginExecutionContext context =
+                (IPluginExecutionContext)serviceProvider.GetService(
+                    typeof(IPluginExecutionContext));
+
+            // Check if the input parameters contain a target entity of
+            // type "contact"
+            if (context.InputParameters.Contains("Target")
+                && context.InputParameters["Target"] is Entity)
+            {
+                Entity contact =
+                    (Entity)context.InputParameters["Target"];
+
+                // Verify that the target entity represents a contact
+                if (contact.LogicalName != "contact")
+                {
+                    return;
+                }
+
+                try
+                {
+                    // Check if the contact has an email address
+                    if (contact.Attributes.Contains("emailaddress1")
+                        && contact["emailaddress1"] is string)
+                    {
+                        string contactEmail =
+                            contact["emailaddress1"] as string;
+
+                        // Perform a simple validation on the email address
+                        // format
+                        if (!IsValidEmail(contactEmail))
+                        {
+                            throw new InvalidPluginExecutionException(
+                                "The email address format is invalid.");
+                        }
+                    }
+
+                    // Check if the contact has a parent account and validate
+                    // its email
+                    if (contact.Attributes.Contains("parentcustomerid")
+                        && contact["parentcustomerid"] is EntityReference)
+                    {
+                        EntityReference parentAccountRef =
+                            (EntityReference)contact["parentcustomerid"];
+
+                        // Obtain the organization service reference
+                        IOrganizationServiceFactory serviceFactory =
+                            (IOrganizationServiceFactory)serviceProvider
+                                .GetService(
+                                    typeof(IOrganizationServiceFactory));
+                        IOrganizationService service =
+                            serviceFactory.CreateOrganizationService(
+                                context.UserId);
+
+                        // Retrieve the parent account
+                        Entity parentAccount = service.Retrieve(
+                            "account",
+                            parentAccountRef.Id,
+                            new Microsoft.Xrm.Sdk.Query.ColumnSet(
+                                "emailaddress1"));
+
+                        if (parentAccount != null
+                            && parentAccount.Attributes.Contains(
+                                "emailaddress1"))
+                        {
+                            string accountEmail =
+                                parentAccount["emailaddress1"] as string;
+
+                            // Perform a simple validation on the account's
+                            // email address format
+                            if (!IsValidEmail(accountEmail))
+                            {
+                                throw new InvalidPluginExecutionException(
+                                    "The parent account's email address "
+                                    + "format is invalid.");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tracingService.Trace(
+                        "ContactEmailValidationPlugin: {0}",
+                        ex.ToString());
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Validates the email format.
+        /// </summary>
+        /// <param name="email">The email address to validate.</param>
+        /// <returns>
+        /// True if the email format is valid, otherwise false.
+        /// </returns>
+        private bool IsValidEmail(string email)
+        {
+            // Basic email validation logic (could be replaced with a more
+            // robust solution)
+            return !string.IsNullOrWhiteSpace(email)
+                && email.Contains("@")
+                && email.Contains(".");
+        }
+    }
+}
+```
+
+This C# file defines a Dynamics 365 plugin that implements the `IPlugin`
+interface. The plugin is designed to validate the email format of a contact
+and its parent account (if any) when a contact record is created or updated.
+It uses the `ITracingService` for logging, checks for null and type safety,
+and retrieves the parent account's email using the `IOrganizationService`.
+The email validation is basic and can be enhanced as needed.

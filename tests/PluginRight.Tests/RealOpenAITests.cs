@@ -50,19 +50,29 @@ public class RealOpenAITests : IClassFixture<WebApplicationFactory<Program>>
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Add("X-Api-Key", "dev");
 
-        var metadata =
-            @"entities:\n  - logicalName: account\n    attributes:\n      - name: name\n"
-            + @"        type: string\n      - name: primarycontactid\n        type: lookup\n  - logicalName: contact\n"
-            + @"    attributes:\n      - name: emailaddress1\n        type: string\n      - name: parentcustomerid\n        type: customer";
+        var metadata = @"
+entities:
+  - logicalName: ""account""
+    attributes:
+      - name: ""name""
+        type: ""string""
+      - name: ""primarycontactid""
+        type: ""lookup""
+  - logicalName: ""contact""
+    attributes:
+      - name: ""emailaddress1""
+        type: ""string""
+      - name: ""parentcustomerid""
+        type: ""customer""
+";
 
         var body = new
         {
             metadata_yaml = metadata,
-            user_prompt =
-            @"On Account Update (PostOperation), find all related contacts "
-             + @"whose emailaddress1 is missing a domain part and append the "
-             + @"domain from the account's primary contact's email, or use "
-             + @"“example.com” if not available.",
+            user_prompt = @"
+On Account Update (PostOperation), find all related contacts whose emailaddress1
+is missing a domain part and append the domain from the account's primary
+contact's email, or use “example.com” if not available.",
         };
 
         using var resp = await client.PostAsync(

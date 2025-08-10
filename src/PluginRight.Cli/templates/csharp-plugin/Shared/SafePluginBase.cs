@@ -33,13 +33,16 @@ namespace __NAMESPACE__.Plugins
         protected abstract void OnExecute(IServiceProvider services);
 
         protected IPluginExecutionContext GetContext(IServiceProvider services)
-            => (IPluginExecutionContext)services.GetService(typeof(IPluginExecutionContext));
+            => (IPluginExecutionContext)services
+                    .GetService(typeof(IPluginExecutionContext));
 
         protected ITracingService GetTracing(IServiceProvider services)
-            => (ITracingService)services.GetService(typeof(ITracingService));
+            => (ITracingService)services
+                    .GetService(typeof(ITracingService));
 
         protected IOrganizationServiceFactory GetFactory(IServiceProvider services)
-            => (IOrganizationServiceFactory)services.GetService(typeof(IOrganizationServiceFactory));
+            => (IOrganizationServiceFactory)services
+                    .GetService(typeof(IOrganizationServiceFactory));
 
         protected IOrganizationService GetService(IServiceProvider services, Guid? userId = null)
             => GetFactory(services).CreateOrganizationService(userId);

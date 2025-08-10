@@ -53,7 +53,7 @@ internal static class Program
         var ns = opts.GetValueOrDefault(
             "namespace", "PluginRight.Generated");
         var entity = opts.GetValueOrDefault("entity", "entity");
-        var message = opts.GetValueOrDefault("message", "Create");
+        var message = opts.GetValueOrDefault("message", "Update");
         var stage = opts.GetValueOrDefault("stage", "PostOperation");
 
         var outDir = opts.GetValueOrDefault(

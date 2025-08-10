@@ -2,30 +2,16 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "format:csharpier",
-			"type": "shell",
+			"label": "build PluginRight.Cli",
+			"type": "process",
 			"command": "dotnet",
 			"args": [
-				"csharpier",
-				"format",
-				"."
+				"build",
+				"${workspaceFolder}/src/PluginRight.Cli/PluginRight.Cli.csproj",
+				"-c",
+				"Debug"
 			],
-			"isBackground": false,
-			"problemMatcher": [],
-			"group": "build"
-		},
-		{
-			"label": "format:csharpier",
-			"type": "shell",
-			"command": "dotnet",
-			"args": [
-				"csharpier",
-				"format",
-				"."
-			],
-			"isBackground": false,
-			"problemMatcher": [],
-			"group": "build"
+			"problemMatcher": "$msCompile"
 		}
 	]
 }

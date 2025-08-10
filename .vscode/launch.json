@@ -2,21 +2,39 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Your own server",
+            "name": "PluginRight CLI (no args)",
+            "type": "coreclr",
             "request": "launch",
-            "type": "al",
-            "environmentType": "OnPrem",
-            "server": "http://bcserver",
-            "serverInstance": "BC",
-            "authentication": "UserPassword",
-            "startupObjectId": 22,
-            "startupObjectType": "Page",
-            "breakOnError": "All",
-            "launchBrowser": true,
-            "enableLongRunningSqlStatements": true,
-            "enableSqlInformationDebugger": true,
-            "tenant": "default",
-            "usePublicURLFromServer": true
+            "preLaunchTask": "build PluginRight.Cli",
+            "program": "${workspaceFolder}/src/PluginRight.Cli/bin/Debug/pluginright.dll",
+            "cwd": "${workspaceFolder}/src/PluginRight.Cli",
+            "console": "integratedTerminal",
+            "args": []
+        },
+        {
+            "name": "PluginRight CLI – new plugin",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build PluginRight.Cli",
+            "program": "${workspaceFolder}/src/PluginRight.Cli/bin/Debug/pluginright.dll",
+            "cwd": "${workspaceFolder}/src/PluginRight.Cli",
+            "console": "integratedTerminal",
+            "args": [
+                "new",
+                "plugin",
+                "--name",
+                "AccountCreate",
+                "--namespace",
+                "Company.Dataverse.Plugins",
+                "--entity",
+                "account",
+                "--message",
+                "Create",
+                "--stage",
+                "PostOperation",
+                "--out",
+                "${workspaceFolder}/out/AccountCreate"
+            ]
         }
     ]
 }

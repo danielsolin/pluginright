@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
     <AssemblyName>__ASSEMBLY_NAME__</AssemblyName>
@@ -7,6 +8,7 @@
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <!-- This will mutate the PackageReference added by `dotnet add` -->
-  <Import Project="PackageOverrides.props" Condition="Exists('PackageOverrides.props')" />
+  <Import Project="PackageOverrides.props"
+      Condition="Exists('PackageOverrides.props')" />
+
 </Project>

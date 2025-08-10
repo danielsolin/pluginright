@@ -1,0 +1,16 @@
+# build output
+bin/
+obj/
+
+# VS/JetBrains
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+.nuget/
+*.nupkg
+packages/

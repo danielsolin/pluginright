@@ -6,14 +6,4 @@
     <Nullable>enable</Nullable>
     <AssemblyName>pluginright</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Do NOT compile any C# files in templates -->
-    <Compile Remove="templates\**\*.cs" />
-    <!-- Ship templates next to the built exe -->
-    <None Include="templates\**\*.*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Pack>false</Pack>
-    </None>
-  </ItemGroup>
 </Project>

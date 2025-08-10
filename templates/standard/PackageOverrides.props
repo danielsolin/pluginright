@@ -1,0 +1,8 @@
+<Project>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.CrmSdk.CoreAssemblies">
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <PrivateAssets>all</PrivateAssets>->
+    </PackageReference>
+  </ItemGroup>
+</Project>

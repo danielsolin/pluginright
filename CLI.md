@@ -1,0 +1,1 @@
+# PluginRight.CLI

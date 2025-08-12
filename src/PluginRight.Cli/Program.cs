@@ -10,35 +10,92 @@ internal static class Program
 
     public static async Task<int> Main(string[] args)
     {
-        var specOpt = new Option<FileInfo>(name: "--spec", description: "Path to spec JSON.") { IsRequired = true };
-        var templateOpt = new Option<DirectoryInfo>(name: "--templates", () => new DirectoryInfo("templates"), description: "Templates directory.");
-        var templateNameOpt = new Option<string>(name: "--template", description: "Template name (file in templates dir).") { IsRequired = true };
-        var outOpt = new Option<FileInfo?>(name: "--out", description: "Write artifact to path instead of stdout.");
-        var seedOpt = new Option<int>(name: "--seed", getDefaultValue: () => 0, description: "Deterministic seed (for model)." );
-        var quietOpt = new Option<bool>(name: "--quiet", description: "Suppress non-error stderr logs.");
+        var specOpt = new Option<FileInfo>
+        (
+            name: "--spec",
+            description: "Path to spec JSON."
+        ) { IsRequired = true };
 
-        var generate = new Command("generate", "Generate plugin code from spec + template")
+        var templateOpt = new Option<DirectoryInfo>
+        (
+            name: "--templates",
+            () => new DirectoryInfo("templates"),
+            description: "Templates directory."
+        );
+
+        var templateNameOpt = new Option<string>
+        (
+            name: "--template",
+            description: "Template name (file in templates dir)."
+        ) { IsRequired = true };
+
+        var outOpt = new Option<FileInfo?>
+        (
+            name: "--out",
+            description: "Write artifact to path instead of stdout."
+        );
+
+        var seedOpt = new Option<int>
+        (
+            name: "--seed",
+            getDefaultValue: () => 0,
+            description: "Deterministic seed (for model)."
+        );
+
+        var quietOpt = new Option<bool>
+        (
+            name: "--quiet",
+            description: "Suppress non-error stderr logs."
+        );
+
+        var generate = new Command("generate", "Generate plugin code from template")
         {
             specOpt, templateOpt, templateNameOpt, outOpt, seedOpt, quietOpt
         };
 
-        generate.SetHandler(async (FileInfo specFile, DirectoryInfo templatesDir, string templateName, FileInfo? outPath, int seed, bool quiet) =>
+        generate.SetHandler(async (FileInfo specFile, DirectoryInfo templatesDir, 
+            string templateName, FileInfo? outPath, int seed, bool quiet) =>
         {
             try
             {
-                var log = new Action<string>(m => { if (!quiet) Console.Error.WriteLine(m); });
+                var log = new Action<string>(
+                    m => {
+                        if (!quiet) Console.Error.WriteLine(m);
+                    }
+                );
+
                 log($"pluginright generate — seed={seed}");
 
                 // 1) Load & parse spec
-                if (!specFile.Exists) throw new FileNotFoundException("Spec file not found", specFile.FullName);
-                var specJson = await File.ReadAllTextAsync(specFile.FullName, Encoding.UTF8);
-                var spec = JsonSerializer.Deserialize<Spec>(specJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                           ?? throw new InvalidOperationException("Spec deserialization returned null.");
-                ValidateSpec(spec);
+                if (!specFile.Exists)
+                {
+                    throw new FileNotFoundException(
+                        "Spec file not found", specFile.FullName
+                    );
+                }
+
+                var specJson = await File.ReadAllTextAsync(
+                    specFile.FullName,
+                    Encoding.UTF8
+                );
+
+                var spec = JsonSerializer.Deserialize<Spec>(
+                    specJson,
+                    new JsonSerializerOptions {
+                        PropertyNameCaseInsensitive = true 
+                    }
+                )
+                if(spec == null)
+                    throw new InvalidOperationException(
+                        "Spec deserialization returned null."
+                    );
+                else
+                    ValidateSpec(spec);
 
                 // 2) Load template file
                 var templatePath = Path.Combine(templatesDir.FullName, templateName);
-                if (!File.Exists(templatePath)) throw new FileNotFoundException("Template not found", templatePath);
+                if (!File.Exists(templatePath))
+                    throw new FileNotFoundException("Template not found", templatePath);
                 var template = await File.ReadAllTextAsync(templatePath, Encoding.UTF8);
 
                 // 3) Resolve substitutions (class name etc.)
@@ -52,7 +109,9 @@ internal static class Program
                 var logic = await model.GenerateLogicAsync(spec);
 
                 if (!rendered.Contains(AiLogicMarker))
-                    throw new InvalidOperationException($"Template missing marker '{AiLogicMarker}'.");
+                    throw new InvalidOperationException(
+                        $"Template missing marker '{AiLogicMarker}'."
+                    );
 
                 rendered = rendered.Replace(AiLogicMarker, logic);
 
@@ -64,7 +123,10 @@ internal static class Program
                 else
                 {
                     Directory.CreateDirectory(outPath.DirectoryName!);
-                    await File.WriteAllTextAsync(outPath.FullName, rendered, Encoding.UTF8);
+                    await File.WriteAllTextAsync(
+                        outPath.FullName, rendered, Encoding.UTF8
+                    );
+
                     // When writing to file, keep stdout empty; log to stderr
                     log($"Wrote: {outPath.FullName}");
                 }
@@ -85,11 +147,16 @@ internal static class Program
 
     private static void ValidateSpec(Spec s)
     {
-        if (string.IsNullOrWhiteSpace(s.Entity)) throw new("Spec.Entity required");
-        if (string.IsNullOrWhiteSpace(s.Message)) throw new("Spec.Message required");
-        if (s.Stage is null) throw new("Spec.Stage required");
-        if (string.IsNullOrWhiteSpace(s.Mode)) throw new("Spec.Mode required");
-        if (string.IsNullOrWhiteSpace(s.Description)) throw new("Spec.Description required");
+        if (string.IsNullOrWhiteSpace(s.Entity))
+            throw new("Spec.Entity required");
+        if (string.IsNullOrWhiteSpace(s.Message)) 
+            throw new("Spec.Message required");
+        if (s.Stage is null)
+            throw new("Spec.Stage required");
+        if (string.IsNullOrWhiteSpace(s.Mode))
+            throw new("Spec.Mode required");
+        if (string.IsNullOrWhiteSpace(s.Description))
+            throw new("Spec.Description required");
     }
 
     private static string DeriveClassName(Spec s)

@@ -1,0 +1,47 @@
+using System;
+using Microsoft.Xrm.Sdk;
+
+namespace {{NAMESPACE}}
+{
+    public class {{CLASS_NAME}} : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var tracingService = (ITracingService)serviceProvider.GetService(
+                typeof(ITracingService)
+            );
+            var context = (IPluginExecutionContext)serviceProvider.GetService(
+                typeof(IPluginExecutionContext)
+            );
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(
+                typeof(IOrganizationServiceFactory)
+            );
+
+            var service = serviceFactory.CreateOrganizationService(context.UserId);
+
+            if (context.InputParameters.Contains("Target")
+                    && context.InputParameters["Target"] is Entity)
+            {
+                var entity = (Entity)context.InputParameters["Target"];
+                try
+                {
+                    tracingService.Trace("Plugin execution started.");
+
+                    // [AI_LOGIC_HERE]
+
+                    tracingService.Trace("Plugin execution finished successfully.");
+                }
+                catch (FaultException<OrganizationServiceFault> ex)
+                {
+                    tracingService.Trace($"FaultException: {ex.Message}");
+                    throw new InvalidPluginExecutionException("An error occurred.", ex);
+                }
+                catch (Exception ex)
+                {
+                    tracingService.Trace($"Exception: {ex}");
+                    throw new InvalidPluginExecutionException(ex.Message, ex);
+                }
+            }
+        }
+    }
+}

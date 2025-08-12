@@ -15,3 +15,5 @@ out/
 .nuget/
 *.nupkg
 packages/
+
+openai.key

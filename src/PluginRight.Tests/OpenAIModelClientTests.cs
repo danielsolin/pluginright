@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PluginRight.Core.Services;
+using PluginRight.Core.Models;
 using System.Text.Json;
 
 namespace PluginRight.Tests;
@@ -40,18 +41,19 @@ public class OpenAIModelClientTests
     public async Task GenerateLogicAsync_SavesResponseToFile()
     {
         // Arrange
-        var jobFilePath = Path.Combine(AppContext.BaseDirectory, "../../../../../orders/test-job1.json");
+        var jobFilePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "../../../../../orders/test-job1.json"
+        );
         var jobJson = await File.ReadAllTextAsync(jobFilePath);
-        var job = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(jobJson);
-        var prompt = job.GetProperty("prompt").GetString();
-
-        if (string.IsNullOrEmpty(prompt))
+        var job = JsonSerializer.Deserialize<Job>(jobJson);
+        if (job == null)
         {
-            Assert.Fail("Prompt is missing or empty in the job file.");
+            Assert.Fail("Failed to deserialize job JSON.");
         }
 
         // Act
-        var result = await _client.GenerateLogicAsync(prompt);
+        var result = await _client.GenerateLogicAsync(job);
 
         // Assert
         Assert.That(result, Is.Not.Null.And.Not.Empty);

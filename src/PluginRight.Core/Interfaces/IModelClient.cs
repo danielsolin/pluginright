@@ -16,7 +16,7 @@ public interface IModelClient
     /// <param name="prompt">The prompt for the plugin logic.</param>
     /// <returns>A task that represents the asynchronous operation, containing the
     /// generated logic as a string.</returns>
-    Task<string> GenerateLogicAsync(string prompt);
+    Task<string> GenerateLogicAsync(Job job);
 }
 
 #nullable disable

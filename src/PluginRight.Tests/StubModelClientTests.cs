@@ -12,27 +12,28 @@ namespace PluginRight.Tests;
 public class StubModelClientTests
 {
     /// <summary>
-    /// Verifies that <see cref="StubModelClient.GenerateLogicAsync(Spec)"/> returns the expected placeholder logic.
+    /// Verifies that <see cref="StubModelClient.GenerateLogicAsync(Job)"/> returns the expected placeholder logic.
     /// </summary>
     [Test]
     public async Task GenerateLogicAsync_ReturnsExpectedLogic()
     {
         // Arrange
-        var spec = new Spec
+        var job = new Job
         {
             Entity = "account",
             Message = "Create",
             Stage = 40,
             Mode = "Sync",
-            Description = "Test plugin",
+            System = "You are an expert C# developer specializing in creating robust, efficient, and standardized Microsoft Dynamics 365 plugins.",
+            User = "When a new Account is created, create a follow-up task due in 7 days regarding that account.",
             Namespace = "PluginRight.Plugins",
-            Name = "TestPlugin"
+            Name = "CreateTask"
         };
 
         var client = new StubModelClient(seed: 123);
 
         // Act
-        var result = await client.GenerateLogicAsync(spec.Prompt);
+        var result = await client.GenerateLogicAsync(job);
 
         // Assert
         Assert.That(result, Does.Contain("// TODO: Replace with AI-generated logic"));

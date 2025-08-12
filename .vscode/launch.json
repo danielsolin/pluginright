@@ -20,6 +20,17 @@
                 "--seed",
                 "0"
             ]
+        },
+        {
+            "name": ".NET Test Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/PluginRight.Tests/bin/Debug/net8.0/testhost.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/PluginRight.Tests",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
         }
     ]
 }

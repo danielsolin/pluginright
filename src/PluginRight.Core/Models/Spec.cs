@@ -3,9 +3,9 @@
 namespace PluginRight.Core.Models;
 
 /// <summary>
-/// Represents the specification for a plugin.
+/// Represents the job for a plugin.
 /// </summary>
-public sealed record Spec
+public sealed record Job
 {
     /// <summary>
     /// The entity involved in the plugin (e.g., "account").
@@ -28,11 +28,6 @@ public sealed record Spec
     public string Mode { get; init; } = string.Empty;
 
     /// <summary>
-    /// A description of the plugin's purpose.
-    /// </summary>
-    public string Description { get; init; } = string.Empty;
-
-    /// <summary>
     /// The namespace for the generated plugin.
     /// </summary>
     public string? Namespace { get; init; }
@@ -43,9 +38,14 @@ public sealed record Spec
     public string? Name { get; init; }
 
     /// <summary>
-    /// The full prompt for generating plugin logic.
+    /// The system message for the OpenAI API.
     /// </summary>
-    public string Prompt { get; init; } = string.Empty;
+    public string System { get; init; } = string.Empty;
+
+    /// <summary>
+    /// The user message for the OpenAI API.
+    /// </summary>
+    public string User { get; init; } = string.Empty;
 }
 
 #nullable disable

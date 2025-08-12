@@ -30,12 +30,17 @@ public sealed class OpenAIModelClient : IModelClient
     }
 
     /// <inheritdoc/>
-    public async Task<string> GenerateLogicAsync(string prompt)
+    public async Task<string> GenerateLogicAsync(Job job)
     {
         var requestBody = new
         {
             model = "gpt-4.1",
-            prompt = prompt
+            messages = new[]
+            {
+                new { role = "system", content = job.System },
+                new { role = "user", content = job.User }
+            },
+            temperature = 0.1
         };
 
         var requestContent = new StringContent(
@@ -48,7 +53,7 @@ public sealed class OpenAIModelClient : IModelClient
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
 
         var response = await _httpClient.PostAsync(
-            "https://api.openai.com/v1/completions",
+            "https://api.openai.com/v1/chat/completions",
             requestContent
         );
         response.EnsureSuccessStatusCode();
@@ -57,7 +62,8 @@ public sealed class OpenAIModelClient : IModelClient
         var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
 
         return jsonResponse.GetProperty("choices")[0]
-                            .GetProperty("text")
+                            .GetProperty("message")
+                            .GetProperty("content")
                             .GetString() ?? string.Empty;
     }
 }

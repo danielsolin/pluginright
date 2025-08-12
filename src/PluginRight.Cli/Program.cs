@@ -87,19 +87,19 @@ internal static class Program
                     Encoding.UTF8
                 );
 
-                var spec = JsonSerializer.Deserialize<Spec>(
+                var job = JsonSerializer.Deserialize<Job>(
                     specJson,
                     new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }
                 );
-                if (spec == null)
+                if (job == null)
                     throw new InvalidOperationException(
-                        "Spec deserialization returned null."
+                        "Job deserialization returned null."
                     );
                 else
-                    ValidateSpec(spec);
+                    ValidateJob(job);
 
                 // 2) Load template file
                 var templatePath = Path.Combine(templatesDir.FullName, templateName);
@@ -112,14 +112,14 @@ internal static class Program
                 var template = await File.ReadAllTextAsync(templatePath, Encoding.UTF8);
 
                 // 3) Resolve substitutions (class name etc.)
-                var className = DeriveClassName(spec);
+                var className = DeriveClassName(job);
                 var rendered = template
                     .Replace("{{CLASS_NAME}}", className)
-                    .Replace("{{NAMESPACE}}", spec.Namespace ?? "PluginRight.Plugins");
+                    .Replace("{{NAMESPACE}}", job.Namespace ?? "PluginRight.Plugins");
 
                 // 4) Ask model for business logic (stubbed for MVP)
                 IModelClient model = new StubModelClient(seed);
-                var logic = await model.GenerateLogicAsync(spec.Prompt);
+                var logic = await model.GenerateLogicAsync(job);
 
                 if (!rendered.Contains(AiLogicMarker))
                     throw new InvalidOperationException(
@@ -156,30 +156,33 @@ internal static class Program
         return await root.InvokeAsync(args);
     }
 
-    private static void ValidateSpec(Spec s)
+    private static void ValidateJob(Job j)
     {
-        if (string.IsNullOrWhiteSpace(s.Entity))
-            throw new("Spec.Entity required");
+        if (string.IsNullOrWhiteSpace(j.Entity))
+            throw new("Job.Entity required");
 
-        if (string.IsNullOrWhiteSpace(s.Message))
-            throw new("Spec.Message required");
+        if (string.IsNullOrWhiteSpace(j.Message))
+            throw new("Job.Message required");
 
-        if (s.Stage is null)
-            throw new("Spec.Stage required");
+        if (j.Stage is null)
+            throw new("Job.Stage required");
 
-        if (string.IsNullOrWhiteSpace(s.Mode))
-            throw new("Spec.Mode required");
+        if (string.IsNullOrWhiteSpace(j.Mode))
+            throw new("Job.Mode required");
 
-        if (string.IsNullOrWhiteSpace(s.Description))
-            throw new("Spec.Description required");
+        if (string.IsNullOrWhiteSpace(j.System))
+            throw new("Job.System required");
+
+        if (string.IsNullOrWhiteSpace(j.User))
+            throw new("Job.User required");
     }
 
-    private static string DeriveClassName(Spec s)
+    private static string DeriveClassName(Job j)
     {
         // e.g., Account_PostCreate_CreateTask
-        var ent = Capitalize(s.Entity);
-        var msg = Capitalize(s.Message);
-        return $"{ent}{msg}_{s.Name ?? "Generated"}";
+        var ent = Capitalize(j.Entity);
+        var msg = Capitalize(j.Message);
+        return $"{ent}{msg}_{j.Name ?? "Generated"}";
     }
 
     private static string Capitalize(string text)

@@ -3,8 +3,8 @@
     "message": "Create",
     "stage": 40,
     "mode": "Sync",
-    "description": "When a new Account is created, create a follow-up task due in 7 days regarding that account.",
     "namespace": "PluginRight.Plugins",
     "name": "CreateTask",
-    "prompt": "You are an expert C# developer specializing in creating robust, efficient, and standardized Microsoft Dynamics 365 plugins. Your task is to write a method with the exact signature defined by 'METHOD_SIGNATURE' and the functionality defined by 'USER_DESCRIPTION'. Return ONLY the code for this method. Your full response should start with 'private' and end with '}'.\n\nMETHOD_SIGNATURE: 'private void ExecuteBusinessLogic(IOrganizationService service, ITracingService tracingService, Entity entity)'.\nUSER_DESCRIPTION: 'When a new Account is created, create a follow-up task due in 7 days regarding that account'."
+    "system": "You are an expert C# developer specializing in creating robust, efficient, and standardized Microsoft Dynamics 365 plugins. Your task is to write a method with the exact signature 'private void ExecuteBusinessLogic(IOrganizationService service, ITracingService tracingService, Entity entity)'. Return ONLY the code for this method. Your response should start with 'private' and end with '}'.",
+    "user": "When a new Account is created, create a follow-up task due in 7 days regarding that account."
 }

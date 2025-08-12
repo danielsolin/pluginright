@@ -4,16 +4,12 @@
 Simulate the full flow **order → generate → review → deliver/OOS** locally with
 a 24-hour SLA.
 
----
-
 ## Directory Layout
 - [ ] `orders/` incoming JSON
 - [ ] `work/<orderId>/` temp build
 - [ ] `out/` delivered ZIPs
 - [ ] `review/` notes/decisions
 - [ ] `logs/` events + timings
-
----
 
 ## CLI (contract only)
 - [ ] `pr order:new <file.json>` — validate & enqueue
@@ -26,8 +22,6 @@ a 24-hour SLA.
 
 States: `queued → generated → under_review → approved | rejected`
 
----
-
 ## Order JSON (minimum)
 - [ ] `orderId` (string)
 - [ ] `customer.name`, `customer.email`
@@ -35,15 +29,11 @@ States: `queued → generated → under_review → approved | rejected`
 - [ ] `fieldsOfInterest[]`, `logic`, `constraints[]`
 - [ ] `submittedAt` (ISO)
 
----
-
 ## “Working” Definition
 - [ ] Offline run with `--stub` produces compilable skeleton
 - [ ] Artifacts: ZIP or rejection note
 - [ ] Timestamps for each phase
 - [ ] Logs with durations
-
----
 
 ## Review Checklist
 - [ ] Compiles cleanly
@@ -54,23 +44,17 @@ States: `queued → generated → under_review → approved | rejected`
 
 Decision: **Approve** (ZIP) or **Reject/OOS** (email template + consult option)
 
----
-
 ## SLA (24h)
 - [ ] On `order:new`: set `receivedAt`
 - [ ] On decision: set `completedAt`
 - [ ] `queue` sorts by `deadline = receivedAt + 24h`
 - [ ] Flag risk after 16h elapsed
 
----
-
 ## Test Orders (examples)
 - [ ] In-scope: Contact phone validation (pre-op create/update)
 - [ ] In-scope: Account name change → update related Contacts’ `new_timestamp` (post-op)
 - [ ] OOS: External API push (SAP) with retries
 - [ ] OOS: Batch/migration over ~1M rows
-
----
 
 ## Now vs Later
 **Now**

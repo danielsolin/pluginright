@@ -6,8 +6,6 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins using AI, but e
 - Speed from AI + reliability from expert oversight.
 - Monetization comes from delivering working plugins, with optional paid consulting for custom work.
 
----
-
 ## 2. Business Flow
 
 ### Step 1 – User Request
@@ -42,14 +40,10 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins using AI, but e
   - Quick install guide.
 - Delivery promised **within 24 hours** from request submission.
 
----
-
 ## 3. Monetization
 - **Standard Plugin Generation Fee** – Flat price for in-scope requests.
 - **Custom Work / Out-of-Scope Consulting** – Additional hourly or per-project fee.
 - Optional **discounted retainer** for companies submitting multiple requests monthly.
-
----
 
 ## 4. Technical Scope Guidelines
 **In Scope**:
@@ -62,8 +56,6 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins using AI, but e
 - Custom integrations with external APIs
 - Large data migrations or transformations
 
----
-
 ## 5. Customer Communication
 - Instant confirmation email after request submission.
 - 24-hour delivery promise displayed prominently.
@@ -74,8 +66,6 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins using AI, but e
   - Short install instructions
   - Support contact link (paid issues only)
 
----
-
 ## 6. Internal Workflow
 - All requests enter a **Task Queue** for review.
 - Each task:
@@ -84,15 +74,11 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins using AI, but e
   3. Classify: In-Scope / Out-of-Scope
   4. Trigger delivery or escalate for consulting
 
----
-
 ## 7. Success Metrics
 - Average time-to-delivery
 - Acceptance rate (In-Scope vs. Out-of-Scope)
 - Refund/cancellation rate
 - Repeat customer rate
-
----
 
 ## 8. Future Expansion
 - If AI quality improves:

@@ -194,7 +194,8 @@ internal sealed class StubModelClient : IModelClient
 
     public Task<string> GenerateLogicAsync(Spec spec)
     {
-        // Deterministic, minimal placeholder logic for MVP; replace with real OpenAI call later.
+        // Deterministic, minimal placeholder logic for MVP;
+        // replace with real OpenAI call later.
         var sb = new StringBuilder();
         sb.AppendLine("// TODO: Replace with AI-generated logic");
         sb.AppendLine("tracingService.Trace(\"Generating logic (stub)\");");

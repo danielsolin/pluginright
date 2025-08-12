@@ -21,7 +21,11 @@ public class OpenAIModelClientTests
     [SetUp]
     public async Task SetUp()
     {
-        var apiKeyPath = Path.Combine(AppContext.BaseDirectory, "../../../../../openai.key");
+        var apiKeyPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "../../../../../openai.key"
+        );
+
         if (!File.Exists(apiKeyPath))
         {
             Assert.Fail("API key file not found: openai.key");
@@ -60,10 +64,17 @@ public class OpenAIModelClientTests
 
         // Save the response to a timestamped file
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        var responseFilePath = Path.Combine(AppContext.BaseDirectory, $"../../../../../orders/test-job1-response-{timestamp}.json");
+        var responseFilePath = Path.Combine(
+            AppContext.BaseDirectory,
+            $"../../../../../orders/test-job1-response-{timestamp}.json"
+        );
         await File.WriteAllTextAsync(responseFilePath, result);
 
-        Assert.That(File.Exists(responseFilePath), Is.True, "Response file was not created.");
+        Assert.That(
+            File.Exists(responseFilePath),
+            Is.True,
+            "Response file was not created."
+        );
     }
 
     [TearDown]

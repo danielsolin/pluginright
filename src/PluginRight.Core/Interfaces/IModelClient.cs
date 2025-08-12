@@ -1,8 +1,9 @@
 #nullable enable
 
 using System.Threading.Tasks;
+using PluginRight.Core.Models;
 
-namespace PluginRight.Core;
+namespace PluginRight.Core.Interfaces;
 
 public interface IModelClient
 {

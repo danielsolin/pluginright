@@ -2,6 +2,9 @@
 using System.Text.Json;
 using System.Text;
 using PluginRight.Core;
+using PluginRight.Core.Models;
+using PluginRight.Core.Interfaces;
+using PluginRight.Core.Services;
 
 namespace PluginRight.CLI;
 

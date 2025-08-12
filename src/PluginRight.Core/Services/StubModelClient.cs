@@ -2,15 +2,17 @@
 
 using System.Text;
 using System.Threading.Tasks;
+using PluginRight.Core.Interfaces;
+using PluginRight.Core.Models;
 
-namespace PluginRight.Core;
+namespace PluginRight.Core.Services;
 
 public sealed class StubModelClient : IModelClient
 {
     private readonly int _seed;
     public StubModelClient(int seed) => _seed = seed;
 
-    public Task<string> GenerateLogicAsync(Spec spec)
+    public Task<string> GenerateLogicAsync(PluginRight.Core.Models.Spec spec)
     {
         // Deterministic, minimal placeholder logic for MVP;
         // replace with real OpenAI call later.

@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace PluginRight.Core;
+namespace PluginRight.Core.Models;
 
 public sealed record Spec
 {

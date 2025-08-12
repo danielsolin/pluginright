@@ -12,7 +12,7 @@
             "args": [
                 "generate",
                 "--spec",
-                "${workspaceFolder}/orders/account.create.task.spec.json",
+                "${workspaceFolder}/orders/test-job1.json",
                 "--templates",
                 "${workspaceFolder}/templates/",
                 "--template",

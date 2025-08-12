@@ -32,7 +32,7 @@ public class StubModelClientTests
         var client = new StubModelClient(seed: 123);
 
         // Act
-        var result = await client.GenerateLogicAsync(spec);
+        var result = await client.GenerateLogicAsync(spec.Prompt);
 
         // Assert
         Assert.That(result, Does.Contain("// TODO: Replace with AI-generated logic"));

@@ -30,14 +30,12 @@ public sealed class OpenAIModelClient : IModelClient
     }
 
     /// <inheritdoc/>
-    public async Task<string> GenerateLogicAsync(Spec spec)
+    public async Task<string> GenerateLogicAsync(string prompt)
     {
         var requestBody = new
         {
             model = "gpt-4.1",
-            prompt = $"Generate plugin logic for the following spec: " +
-                     JsonSerializer.Serialize(spec),
-            max_tokens = 150
+            prompt = prompt
         };
 
         var requestContent = new StringContent(

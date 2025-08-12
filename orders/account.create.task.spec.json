@@ -1,9 +1,0 @@
-{
-    "entity": "account",
-    "message": "Create",
-    "stage": 40,
-    "mode": "Sync",
-    "description": "When a new Account is created, create a follow-up task due in 7 days regarding that account.",
-    "namespace": "PluginRight.Plugins",
-    "name": "CreateTask"
-}

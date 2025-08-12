@@ -119,7 +119,7 @@ internal static class Program
 
                 // 4) Ask model for business logic (stubbed for MVP)
                 IModelClient model = new StubModelClient(seed);
-                var logic = await model.GenerateLogicAsync(spec);
+                var logic = await model.GenerateLogicAsync(spec.Prompt);
 
                 if (!rendered.Contains(AiLogicMarker))
                     throw new InvalidOperationException(

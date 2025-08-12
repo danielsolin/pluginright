@@ -11,12 +11,12 @@ namespace PluginRight.Core.Interfaces;
 public interface IModelClient
 {
     /// <summary>
-    /// Generates the business logic for a plugin based on the provided specification.
+    /// Generates the business logic for a plugin based on the provided prompt.
     /// </summary>
-    /// <param name="spec">The specification for the plugin.</param>
+    /// <param name="prompt">The prompt for the plugin logic.</param>
     /// <returns>A task that represents the asynchronous operation, containing the
     /// generated logic as a string.</returns>
-    Task<string> GenerateLogicAsync(Spec spec);
+    Task<string> GenerateLogicAsync(string prompt);
 }
 
 #nullable disable

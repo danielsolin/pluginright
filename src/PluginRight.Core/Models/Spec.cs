@@ -41,6 +41,11 @@ public sealed record Spec
     /// A short label for the plugin (e.g., "CreateTask").
     /// </summary>
     public string? Name { get; init; }
+
+    /// <summary>
+    /// The full prompt for generating plugin logic.
+    /// </summary>
+    public string Prompt { get; init; } = string.Empty;
 }
 
 #nullable disable

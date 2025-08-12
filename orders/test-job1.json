@@ -1,0 +1,10 @@
+{
+    "entity": "account",
+    "message": "Create",
+    "stage": 40,
+    "mode": "Sync",
+    "description": "When a new Account is created, create a follow-up task due in 7 days regarding that account.",
+    "namespace": "PluginRight.Plugins",
+    "name": "CreateTask",
+    "prompt": "You are an expert C# developer specializing in creating robust, efficient, and standardized Microsoft Dynamics 365 plugins. Your task is to write a method with with the signature defined by 'METHOD_SIGNATURE' and the functionality defined by 'METHOD_LOGIC'. Return ONLY the code for this method. Your full response should start with 'private' and end with '}'. METHOD_SIGNATURE: 'private void ExecuteBusinessLogic(IOrganizationService service, ITracingService tracingService, Entity entity)'. METHOD_LOGIC: 'When a new Account is created, create a follow-up task due in 7 days regarding that account'."
+}

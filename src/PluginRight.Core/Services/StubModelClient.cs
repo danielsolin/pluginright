@@ -25,7 +25,7 @@ public sealed class StubModelClient : IModelClient
     public StubModelClient(int seed) => _seed = seed;
 
     /// <inheritdoc/>
-    public Task<string> GenerateLogicAsync(PluginRight.Core.Models.Spec spec)
+    public Task<string> GenerateLogicAsync(string prompt)
     {
         // Deterministic, minimal placeholder logic for MVP;
         // replace with real OpenAI call later.

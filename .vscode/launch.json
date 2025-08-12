@@ -2,38 +2,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PluginRight CLI (no args)",
+            "name": "PluginRight CLI generate account.create.task.spec.json",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build PluginRight.Cli",
-            "program": "${workspaceFolder}/src/PluginRight.Cli/bin/Debug/pluginright.dll",
-            "cwd": "${workspaceFolder}/src/PluginRight.Cli",
-            "console": "integratedTerminal",
-            "args": []
-        },
-        {
-            "name": "PluginRight CLI – new plugin",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build PluginRight.Cli",
-            "program": "${workspaceFolder}/src/PluginRight.Cli/bin/Debug/pluginright.dll",
+            "program": "${workspaceFolder}/src/PluginRight.Cli/bin/Debug/net8.0/pluginright.dll",
             "cwd": "${workspaceFolder}/src/PluginRight.Cli",
             "console": "integratedTerminal",
             "args": [
-                "new",
-                "plugin",
-                "--name",
-                "AccountCreate",
-                "--namespace",
-                "Company.Dataverse.Plugins",
-                "--entity",
-                "account",
-                "--message",
-                "Create",
-                "--stage",
-                "PostOperation",
-                "--out",
-                "${workspaceFolder}/out/AccountCreate"
+                "generate",
+                "--spec",
+                "${workspaceFolder}/examples/account.create.task.spec.json",
+                "--templates",
+                "${workspaceFolder}/templates/",
+                "--template",
+                "__StandardPlugin__.cs",
+                "--seed",
+                "0"
             ]
         }
     ]

@@ -14,7 +14,15 @@ internal static class Program
         (
             name: "--spec",
             description: "Path to spec JSON."
-        ) { IsRequired = true };
+        )
+        { IsRequired = true };
+
+        var templateNameOpt = new Option<string>
+        (
+            name: "--template",
+            description: "Template name (file in templates dir)."
+        )
+        { IsRequired = true };
 
         var templateOpt = new Option<DirectoryInfo>
         (
@@ -22,12 +30,6 @@ internal static class Program
             () => new DirectoryInfo("templates"),
             description: "Templates directory."
         );
-
-        var templateNameOpt = new Option<string>
-        (
-            name: "--template",
-            description: "Template name (file in templates dir)."
-        ) { IsRequired = true };
 
         var outOpt = new Option<FileInfo?>
         (
@@ -53,13 +55,14 @@ internal static class Program
             specOpt, templateOpt, templateNameOpt, outOpt, seedOpt, quietOpt
         };
 
-        generate.SetHandler(async (FileInfo specFile, DirectoryInfo templatesDir, 
+        generate.SetHandler(async (FileInfo specFile, DirectoryInfo templatesDir,
             string templateName, FileInfo? outPath, int seed, bool quiet) =>
         {
             try
             {
                 var log = new Action<string>(
-                    m => {
+                    m =>
+                    {
                         if (!quiet) Console.Error.WriteLine(m);
                     }
                 );
@@ -70,7 +73,8 @@ internal static class Program
                 if (!specFile.Exists)
                 {
                     throw new FileNotFoundException(
-                        "Spec file not found", specFile.FullName
+                        "Spec file not found: {specFile.FullName}",
+                        specFile.FullName
                     );
                 }
 
@@ -81,11 +85,12 @@ internal static class Program
 
                 var spec = JsonSerializer.Deserialize<Spec>(
                     specJson,
-                    new JsonSerializerOptions {
-                        PropertyNameCaseInsensitive = true 
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
                     }
-                )
-                if(spec == null)
+                );
+                if (spec == null)
                     throw new InvalidOperationException(
                         "Spec deserialization returned null."
                     );
@@ -95,7 +100,11 @@ internal static class Program
                 // 2) Load template file
                 var templatePath = Path.Combine(templatesDir.FullName, templateName);
                 if (!File.Exists(templatePath))
-                    throw new FileNotFoundException("Template not found", templatePath);
+                    throw new FileNotFoundException(
+                        $"Template not found: {templatePath}",
+                        templatePath
+                    );
+
                 var template = await File.ReadAllTextAsync(templatePath, Encoding.UTF8);
 
                 // 3) Resolve substitutions (class name etc.)
@@ -130,13 +139,10 @@ internal static class Program
                     // When writing to file, keep stdout empty; log to stderr
                     log($"Wrote: {outPath.FullName}");
                 }
-
-                return 0;
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(ex.Message);
-                return 1;
             }
         }, specOpt, templateOpt, templateNameOpt, outOpt, seedOpt, quietOpt);
 
@@ -149,7 +155,7 @@ internal static class Program
     {
         if (string.IsNullOrWhiteSpace(s.Entity))
             throw new("Spec.Entity required");
-        if (string.IsNullOrWhiteSpace(s.Message)) 
+        if (string.IsNullOrWhiteSpace(s.Message))
             throw new("Spec.Message required");
         if (s.Stage is null)
             throw new("Spec.Stage required");
@@ -168,7 +174,8 @@ internal static class Program
     }
 
     private static string Capitalize(string text)
-        => string.IsNullOrEmpty(text) ? text : char.ToUpperInvariant(text[0]) + text[1..];
+        => string.IsNullOrEmpty(text) ? text :
+            char.ToUpperInvariant(text[0]) + text[1..];
 }
 
 internal sealed record Spec

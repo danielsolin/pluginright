@@ -7,11 +7,24 @@ using PluginRight.Core.Models;
 
 namespace PluginRight.Core.Services;
 
+/// <summary>
+/// A stub implementation of <see cref="IModelClient"/> for generating placeholder
+/// plugin logic.
+/// </summary>
 public sealed class StubModelClient : IModelClient
 {
+    /// <summary>
+    /// The deterministic seed for generating logic.
+    /// </summary>
     private readonly int _seed;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StubModelClient"/> class.
+    /// </summary>
+    /// <param name="seed">The deterministic seed for generating logic.</param>
     public StubModelClient(int seed) => _seed = seed;
 
+    /// <inheritdoc/>
     public Task<string> GenerateLogicAsync(PluginRight.Core.Models.Spec spec)
     {
         // Deterministic, minimal placeholder logic for MVP;

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using PluginRight.Core.Models;
+using PluginRight.Core.Utilities;
 
 namespace PluginRight.Tests
 {
@@ -17,19 +18,14 @@ namespace PluginRight.Tests
         public async Task DeserializeJob_FromMinimalJson_Success()
         {
             // Arrange
-            var jobFilePath = Path.Combine(
-                AppContext.BaseDirectory,
-                "../../../../../orders/test-mini.json"
-            );
+            var repoRoot = PathUtilities.GetRepositoryRoot();
+            var jobFilePath = Path.Combine(repoRoot, "orders/test-mini.json");
             var jobJson = await File.ReadAllTextAsync(jobFilePath);
 
             // Act
             var job = JsonSerializer.Deserialize<Job>(
                 jobJson,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }
+                JsonOptions.Default
             );
 
             // Assert

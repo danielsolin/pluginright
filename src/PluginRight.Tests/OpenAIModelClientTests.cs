@@ -22,10 +22,8 @@ public class OpenAIModelClientTests
     [SetUp]
     public async Task SetUp()
     {
-        var apiKeyPath = Path.Combine(
-            AppContext.BaseDirectory,
-            "../../../../../openai.key"
-        );
+        var repoRoot = PathUtilities.GetRepositoryRoot();
+        var apiKeyPath = Path.Combine(repoRoot, "openai.key");
 
         if (!File.Exists(apiKeyPath))
         {
@@ -46,10 +44,8 @@ public class OpenAIModelClientTests
     public async Task GenerateLogicAsync_SavesResponseToFile()
     {
         // Arrange
-        var jobFilePath = Path.Combine(
-            AppContext.BaseDirectory,
-            "../../../../../orders/test-job1.json"
-        );
+        var repoRoot = PathUtilities.GetRepositoryRoot();
+        var jobFilePath = Path.Combine(repoRoot, "orders/test-job1.json");
         var jobJson = await File.ReadAllTextAsync(jobFilePath);
         var job = JsonSerializer.Deserialize<Job>(jobJson, JsonOptions.Default);
         if (job == null)
@@ -66,8 +62,8 @@ public class OpenAIModelClientTests
         // Save the response to a timestamped file
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var responseFilePath = Path.Combine(
-            AppContext.BaseDirectory,
-            $"../../../../../orders/test-job1-response-{timestamp}.json"
+            repoRoot,
+            $"orders/test-job1-response-{timestamp}.json"
         );
         await File.WriteAllTextAsync(responseFilePath, result);
 

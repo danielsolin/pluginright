@@ -2,26 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "PluginRight CLI generate account.create.task.spec.json",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build PluginRight.Cli",
-            "program": "${workspaceFolder}/src/PluginRight.Cli/bin/Debug/net8.0/pluginright.dll",
-            "cwd": "${workspaceFolder}/src/PluginRight.Cli",
-            "console": "integratedTerminal",
-            "args": [
-                "generate",
-                "--spec",
-                "${workspaceFolder}/orders/test-job1.json",
-                "--templates",
-                "${workspaceFolder}/templates/",
-                "--template",
-                "__StandardPlugin__.cs",
-                "--seed",
-                "0"
-            ]
-        },
-        {
             "name": ".NET Test Debug",
             "type": "coreclr",
             "request": "launch",

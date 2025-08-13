@@ -17,6 +17,9 @@ namespace {{NAMESPACE}}
                 typeof(IOrganizationServiceFactory)
             );
 
+            if (context.Depth > 1)
+                return;
+
             var service = serviceFactory.CreateOrganizationService(context.UserId);
 
             if (context.InputParameters.Contains("Target")

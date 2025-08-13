@@ -2,11 +2,13 @@
 
 ## Next
 1. Use SharedVariables instead of context.Deptch
-    if (context.SharedVariables.ContainsKey("PluginExecuted"))
-    {
-        return;
-    }
-    context.SharedVariables["PluginExecuted"] = true;
+```csharp
+if (context.SharedVariables.ContainsKey("PluginExecuted"))
+{
+    return;
+}
+context.SharedVariables["PluginExecuted"] = true;
+
 
 2. Generate working plugin code file
 

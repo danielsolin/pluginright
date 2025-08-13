@@ -1,0 +1,10 @@
+{
+    "entity": "account",
+    "message": "Create",
+    "stage": 40,
+    "mode": "Sync",
+    "namespace": "PluginRight.Plugins",
+    "name": "MiniTest",
+    "system": "System message for minimal test.",
+    "user": "User message for minimal test."
+}

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using PluginRight.Core.Services;
 using PluginRight.Core.Models;
+using PluginRight.Core.Utilities;
 using System.Text.Json;
 
 namespace PluginRight.Tests;
@@ -50,7 +51,7 @@ public class OpenAIModelClientTests
             "../../../../../orders/test-job1.json"
         );
         var jobJson = await File.ReadAllTextAsync(jobFilePath);
-        var job = JsonSerializer.Deserialize<Job>(jobJson);
+        var job = JsonSerializer.Deserialize<Job>(jobJson, JsonOptions.Default);
         if (job == null)
         {
             Assert.Fail("Failed to deserialize job JSON.");

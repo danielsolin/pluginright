@@ -24,7 +24,13 @@ namespace PluginRight.Tests
             var jobJson = await File.ReadAllTextAsync(jobFilePath);
 
             // Act
-            var job = JsonSerializer.Deserialize<Job>(jobJson);
+            var job = JsonSerializer.Deserialize<Job>(
+                jobJson,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
 
             // Assert
             Assert.That(job, Is.Not.Null, "Job deserialization returned null.");

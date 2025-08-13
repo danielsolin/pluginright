@@ -1,6 +1,6 @@
-# PluginRight CLI — Local E2E Test
+# PluginRight TODO
 
-## TODO Next
+## Next
 1. Use SharedVariables instead of context.Deptch
     if (context.SharedVariables.ContainsKey("PluginExecuted"))
     {

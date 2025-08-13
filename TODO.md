@@ -1,7 +1,7 @@
 # PluginRight TODO
 
 ## Next
-1. Use SharedVariables instead of context.Deptch
+1. Use SharedVariables instead of context.Depth
 ```csharp
 if (context.SharedVariables.ContainsKey("PluginExecuted"))
 {

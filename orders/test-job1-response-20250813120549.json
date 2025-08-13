@@ -1,0 +1,25 @@
+private void ExecuteBusinessLogic(IOrganizationService service, ITracingService tracingService, Entity entity)
+{
+    if (entity == null || entity.LogicalName != "account" || !entity.Id.Equals(Guid.Empty))
+    {
+        // Only proceed for newly created Account records
+        return;
+    }
+
+    try
+    {
+        // Prepare the follow-up task
+        Entity task = new Entity("task");
+        task["subject"] = "Follow up with new account";
+        task["description"] = "Reach out to the new account for a follow-up.";
+        task["scheduledend"] = DateTime.UtcNow.AddDays(7);
+        task["regardingobjectid"] = new EntityReference("account", entity.Id);
+
+        service.Create(task);
+    }
+    catch (Exception ex)
+    {
+        tracingService.Trace("ExecuteBusinessLogic: {0}", ex.ToString());
+        throw;
+    }
+}

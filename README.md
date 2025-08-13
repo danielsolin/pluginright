@@ -1,4 +1,4 @@
-# PluginRight – AI Plugin Service
+# PluginRight – AI Assisted Plugin Service
 
 ## 1. Core Concept
 PluginRight generates Microsoft Dynamics 365 / Dataverse plugins with AI-assistance. It is a free tool used to attract customers for plugin development consulting.
@@ -9,7 +9,7 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins with AI-assista
 - User visits **pluginright.com**.
 - Guided **UI/Wizard** helps define the plugin requirements:
   - Trigger conditions (Create/Update/Delete)
-  - Entity/entities involved
+  - Entity/entities involved:
   - Desired logic
   - Any special constraints or exceptions
 

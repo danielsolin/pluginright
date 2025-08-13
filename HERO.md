@@ -1,7 +1,7 @@
 # Headline
 AI-Assisted Plugin Development for Microsoft Dynamics 365
 
-## Subheading:
+## Subheading
 Generate production-ready C# plugins in minutes — and explore practical articles on building, deploying, and optimizing Dataverse solutions.
 
 ## Primary Button

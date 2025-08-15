@@ -55,12 +55,6 @@ public sealed class GeminiModelClient : IModelClient
             "application/json"
         );
 
-        var requestContent = new StringContent(
-            JsonSerializer.Serialize(requestBody),
-            Encoding.UTF8,
-            "application/json"
-        );
-
         var response = await _httpClient.PostAsync(url, requestContent);
         response.EnsureSuccessStatusCode();
 

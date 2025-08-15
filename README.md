@@ -15,6 +15,6 @@ PluginRight generates Microsoft Dynamics 365 / Dataverse plugins with AI-assista
 
 ### Step 2 – Generation
 - AI generates C# logic based on input from step 1.
-- Site generates the requested plugin (code, csproj, props, etc.).
+- Site logic generates the requested plugin (code, csproj, props, etc.).
 - Code is viewable on the site, and a full plugin-project can be downloaded as a .zip.
 - (Project can be compiled on pluginright.com)

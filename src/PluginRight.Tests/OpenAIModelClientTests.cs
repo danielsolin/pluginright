@@ -46,8 +46,7 @@ public class OpenAIModelClientTests
         // Arrange
         var repoRoot = PathUtilities.GetRepositoryRoot();
         var jobFilePath = Path.Combine(repoRoot, "orders/test-job1.json");
-        var jobJson = await File.ReadAllTextAsync(jobFilePath);
-        var job = JsonSerializer.Deserialize<Job>(jobJson, JsonOptions.Default);
+        var job = PluginRight.Core.Utilities.JobReader.ReadJobFromFile(jobFilePath);
         if (job == null)
         {
             Assert.Fail("Failed to deserialize job JSON.");

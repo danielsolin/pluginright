@@ -16,4 +16,5 @@ out/
 *.nupkg
 packages/
 
-openai.key
+# API Keys
+keys/

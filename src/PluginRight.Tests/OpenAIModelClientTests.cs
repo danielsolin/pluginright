@@ -23,7 +23,7 @@ public class OpenAIModelClientTests
     public async Task SetUp()
     {
         var repoRoot = PathUtilities.GetRepositoryRoot();
-        var apiKeyPath = Path.Combine(repoRoot, "openai.key");
+        var apiKeyPath = Path.Combine(repoRoot + "/keys", "openai.key");
 
         if (!File.Exists(apiKeyPath))
         {

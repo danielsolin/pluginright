@@ -20,11 +20,11 @@ namespace PluginRight.Tests
         public async Task SetUp()
         {
             var repoRoot = PathUtilities.GetRepositoryRoot();
-            var apiKeyPath = Path.Combine(repoRoot, "gemini.key");
+            var apiKeyPath = Path.Combine(repoRoot + "/keys", "gemini.key");
 
             if (!File.Exists(apiKeyPath))
             {
-                Assert.Inconclusive("API key file not found: gemini.key. Skipping test.");
+                Assert.Inconclusive("API key file not found: gemini.key.");
             }
 
             _apiKey = await File.ReadAllTextAsync(apiKeyPath);

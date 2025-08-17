@@ -11,7 +11,7 @@ namespace PluginRight.Core.Utilities
             if (!File.Exists(filePath))
                 return null;
             var json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<Job>(json);
+            return JsonSerializer.Deserialize<Job>(json, JsonOptions.Default);
         }
     }
 }

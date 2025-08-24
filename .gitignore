@@ -18,4 +18,8 @@ packages/
 
 # API Keys
 keys/
+
+# Gemini conversational context
 /GEMINI.md
+
+orders/*.cs

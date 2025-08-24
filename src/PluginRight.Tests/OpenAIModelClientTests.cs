@@ -21,54 +21,50 @@ public class OpenAIModelClientTests
     [SetUp]
     public async Task SetUp()
     {
-        var repoRoot = PathUtilities.GetRepositoryRoot();
-        var apiKeyPath = Path.Combine(repoRoot + "/keys", "openai.key");
-
-        if (!File.Exists(apiKeyPath))
+        string apiKey;
+        try
         {
-            Assert.Fail("API key file not found: openai.key");
+            apiKey = await ApiKeyReader.ReadApiKeyAsync("openai.key");
         }
-
-        var apiKey = await File.ReadAllTextAsync(apiKeyPath);
-        if (string.IsNullOrWhiteSpace(apiKey))
+        catch (InvalidOperationException ex)
         {
-            Assert.Fail("API key file is empty.");
+            Assert.Inconclusive(ex.Message);
+            return;
         }
 
         _httpClient = new HttpClient();
-        _client = new OpenAIModelClient(_httpClient, apiKey.Trim());
+        _client = new OpenAIModelClient(_httpClient, apiKey);
     }
 
     [Test]
     public async Task GenerateLogicAsync_SavesResponseToFile()
     {
         // Arrange
-        var repoRoot = PathUtilities.GetRepositoryRoot();
-        var jobFilePath = Path.Combine(repoRoot, "orders/test-job1.json");
-        var job = PluginRight.Core.Utilities.JobReader.ReadJobFromFile(jobFilePath);
+        var job = JobReader.ReadJobFromFile("test-job1.json");
         if (job == null)
         {
             Assert.Fail("Failed to deserialize job JSON.");
+            return; // for nullable analysis
         }
 
         // Act
-        var result = await _client.GenerateLogicAsync(job);
+        var generatedLogic = await _client.GenerateLogicAsync(job);
 
         // Assert
-        Assert.That(result, Is.Not.Null.And.Not.Empty);
+        Assert.That(generatedLogic, Is.Not.Null.And.Not.Empty);
 
-        // Save the response to a timestamped file
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        var responseFilePath = Path.Combine(
-            repoRoot,
-            $"orders/test-job1-response-{timestamp}.json"
+        // Save the generated plugin code using the new utility
+        var repoRoot = PathUtilities.GetRepositoryRoot(); // repoRoot is still needed here
+        var generatedFilePath = await PluginCodeGenerator.GenerateAndSavePluginCodeAsync(
+            generatedLogic,
+            job,
+            repoRoot
         );
-        await File.WriteAllTextAsync(responseFilePath, result);
 
         Assert.That(
-            File.Exists(responseFilePath),
+            File.Exists(generatedFilePath),
             Is.True,
-            "Response file was not created."
+            "Generated plugin file was not created."
         );
     }
 

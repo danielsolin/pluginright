@@ -9,4 +9,4 @@ indent_style = space
 indent_size = 4
 
 [*.cs]
-dotnet_diagnostic.IDE0005.severity = info
+dotnet_diagnostic.IDE0005.severity = warning

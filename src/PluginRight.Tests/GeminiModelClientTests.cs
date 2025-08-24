@@ -19,31 +19,25 @@ namespace PluginRight.Tests
         [SetUp]
         public async Task SetUp()
         {
-            var repoRoot = PathUtilities.GetRepositoryRoot();
-            var apiKeyPath = Path.Combine(repoRoot + "/keys", "gemini.key");
-
-            if (!File.Exists(apiKeyPath))
+            try
             {
-                Assert.Inconclusive("API key file not found: gemini.key.");
+                _apiKey = await ApiKeyReader.ReadApiKeyAsync("gemini.key");
             }
-
-            _apiKey = await File.ReadAllTextAsync(apiKeyPath);
-            if (string.IsNullOrWhiteSpace(_apiKey))
+            catch (InvalidOperationException ex)
             {
-                Assert.Inconclusive("API key file is empty. Skipping test.");
+                Assert.Inconclusive(ex.Message);
+                return;
             }
 
             _httpClient = new HttpClient();
-            _client = new GeminiModelClient(_httpClient, _apiKey.Trim());
+            _client = new GeminiModelClient(_httpClient, _apiKey);
         }
 
         [Test]
         public async Task GenerateLogicAsync_SavesResponseToFile()
         {
             // Arrange
-            var repoRoot = PathUtilities.GetRepositoryRoot();
-            var jobFilePath = Path.Combine(repoRoot, "orders/test-job1.json");
-            var job = JobReader.ReadJobFromFile(jobFilePath);
+            var job = JobReader.ReadJobFromFile("test-job1.json");
             if (job == null)
             {
                 Assert.Fail("Failed to deserialize job JSON.");
@@ -51,23 +45,23 @@ namespace PluginRight.Tests
             }
 
             // Act
-            var result = await _client.GenerateLogicAsync(job);
+            var generatedLogic = await _client.GenerateLogicAsync(job);
 
             // Assert
-            Assert.That(result, Is.Not.Null.And.Not.Empty);
+            Assert.That(generatedLogic, Is.Not.Null.And.Not.Empty);
 
-            // Save the response to a timestamped file
-            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            var responseFilePath = Path.Combine(
-                repoRoot,
-                $"orders/test-job1-gemini-response-{timestamp}.json"
+            // Save the generated plugin code using the new utility
+            var repoRoot = PathUtilities.GetRepositoryRoot(); // repoRoot is still needed here
+            var generatedFilePath = await PluginCodeGenerator.GenerateAndSavePluginCodeAsync(
+                generatedLogic,
+                job,
+                repoRoot
             );
-            await File.WriteAllTextAsync(responseFilePath, result);
 
             Assert.That(
-                File.Exists(responseFilePath),
+                File.Exists(generatedFilePath),
                 Is.True,
-                "Response file was not created."
+                "Generated plugin file was not created."
             );
         }
 

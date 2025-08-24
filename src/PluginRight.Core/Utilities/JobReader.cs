@@ -6,8 +6,11 @@ namespace PluginRight.Core.Utilities
 {
     public static class JobReader
     {
-        public static Job? ReadJobFromFile(string filePath)
+        public static Job? ReadJobFromFile(string jobFileName)
         {
+            var repoRoot = PathUtilities.GetRepositoryRoot();
+            var filePath = Path.Combine(repoRoot, "orders", jobFileName);
+
             if (!File.Exists(filePath))
                 return null;
             var json = File.ReadAllText(filePath);

@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -68,5 +66,3 @@ public sealed class GeminiModelClient : IModelClient
                             .GetString() ?? string.Empty;
     }
 }
-
-#nullable disable

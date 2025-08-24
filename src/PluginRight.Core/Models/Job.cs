@@ -1,5 +1,3 @@
-#nullable enable
-
 namespace PluginRight.Core.Models;
 
 /// <summary>
@@ -47,5 +45,3 @@ public sealed record Job
     /// </summary>
     public string User { get; init; } = string.Empty;
 }
-
-#nullable disable

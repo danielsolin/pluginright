@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Text;
 using System.Threading.Tasks;
 using PluginRight.Core.Interfaces;
@@ -43,5 +41,3 @@ public sealed class StubModelClient : IModelClient
         return Task.FromResult(sb.ToString());
     }
 }
-
-#nullable disable

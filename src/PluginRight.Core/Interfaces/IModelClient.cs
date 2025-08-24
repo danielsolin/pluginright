@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Threading.Tasks;
 using PluginRight.Core.Models;
 
@@ -18,5 +16,3 @@ public interface IModelClient
     /// generated logic as a string.</returns>
     Task<string> GenerateLogicAsync(Job job);
 }
-
-#nullable disable

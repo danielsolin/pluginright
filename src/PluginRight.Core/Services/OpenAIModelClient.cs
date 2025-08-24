@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -67,5 +65,3 @@ public sealed class OpenAIModelClient : IModelClient
                             .GetString() ?? string.Empty;
     }
 }
-
-#nullable disable

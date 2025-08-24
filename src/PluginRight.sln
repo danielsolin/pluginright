@@ -7,13 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginRight.Core", "PluginR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginRight.Tests", "PluginRight.Tests\PluginRight.Tests.csproj", "{EAF58652-F0C1-4879-AAEE-CD5C21A719E3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3A475F62-0A7D-4325-BEDA-B8B3A1B0A19F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +26,8 @@ Global
 		{EAF58652-F0C1-4879-AAEE-CD5C21A719E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAF58652-F0C1-4879-AAEE-CD5C21A719E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAF58652-F0C1-4879-AAEE-CD5C21A719E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

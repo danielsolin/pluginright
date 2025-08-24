@@ -12,7 +12,8 @@ namespace PluginRight.Core.Utilities
         /// Finds the root directory of the repository by locating the ".git" folder.
         /// </summary>
         /// <returns>The absolute path to the repository root.</returns>
-        /// <exception cref="InvalidOperationException">Thrown if the repository root cannot be found.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the repository root
+        /// cannot be found.</exception>
         public static string GetRepositoryRoot()
         {
             var currentDir = AppContext.BaseDirectory;

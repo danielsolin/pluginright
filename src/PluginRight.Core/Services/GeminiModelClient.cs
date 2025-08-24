@@ -31,13 +31,16 @@ public sealed class GeminiModelClient : IModelClient
     /// <inheritdoc/>
     public async Task<string> GenerateLogicAsync(Job job)
     {
-        var url = $"https://generativelanguage.googleapis.com/v1beta/models/{Model}:generateContent?key={_apiKey}";
+        var url = $"https://generativelanguage.googleapis.com/v1beta/models/" +
+                  $"{Model}:generateContent?key={_apiKey}";
 
         var requestBody = new
         {
             contents = new[]
             {
-                new { role = "user", parts = new[] { new { text = $"{job.System}\n{job.User}" } } }
+                new { role = "user", parts = new[] {
+                    new { text = $"{job.System}\n{job.User}" }
+                } }
             },
             generationConfig = new
             {
@@ -57,10 +60,13 @@ public sealed class GeminiModelClient : IModelClient
         var responseContent = await response.Content.ReadAsStringAsync();
         var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
 
-        return jsonResponse.GetProperty("candidates")[0]
-                            .GetProperty("content")
-                            .GetProperty("parts")[0]
-                            .GetProperty("text")
-                            .GetString() ?? string.Empty;
+        var candidates = jsonResponse.GetProperty("candidates");
+        var firstCandidate = candidates[0];
+        var content = firstCandidate.GetProperty("content");
+        var parts = content.GetProperty("parts");
+        var firstPart = parts[0];
+        var text = firstPart.GetProperty("text");
+
+        return text.GetString() ?? string.Empty;
     }
 }

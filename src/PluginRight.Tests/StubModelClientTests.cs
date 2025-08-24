@@ -12,7 +12,8 @@ namespace PluginRight.Tests;
 public class StubModelClientTests
 {
     /// <summary>
-    /// Verifies that <see cref="StubModelClient.GenerateLogicAsync(Job)"/> returns the expected placeholder logic.
+    /// Verifies that <see cref="StubModelClient.GenerateLogicAsync(Job)"/> returns the
+    /// expected placeholder logic.
     /// </summary>
     [Test]
     public async Task GenerateLogicAsync_ReturnsExpectedLogic()
@@ -24,8 +25,10 @@ public class StubModelClientTests
             Message = "Create",
             Stage = 40,
             Mode = "Sync",
-            System = "You are an expert C# developer specializing in creating robust, efficient, and standardized Microsoft Dynamics 365 plugins.",
-            User = "When a new Account is created, create a follow-up task due in 7 days regarding that account.",
+            System = "You are an expert C# developer specializing in creating robust, " +
+                     "efficient, and standardized Microsoft Dynamics 365 plugins.",
+            User = "When a new Account is created, create a follow-up task due in 7 " +
+                   "days regarding that account.",
             Namespace = "PluginRight.Plugins",
             Name = "CreateTask"
         };
@@ -36,10 +39,14 @@ public class StubModelClientTests
         var result = await client.GenerateLogicAsync(job);
 
         // Assert
-        Assert.That(result, Does.Contain("// TODO: Replace with AI-generated logic"));
-        Assert.That(result, Does.Contain("tracingService.Trace(\"Generating logic (stub)\");"));
-        Assert.That(result, Does.Contain("var target = (Entity)context.InputParameters[\"Target\"];"));
+        Assert.That(result, Does.Contain(
+            "// TODO: Replace with AI-generated logic"));
+        Assert.That(result, Does.Contain(
+            "tracingService.Trace(\"Generating logic (stub)\");"));
+        Assert.That(result, Does.Contain(
+            "var target = (Entity)context.InputParameters[\"Target\"];"));
         Assert.That(result, Does.Contain("var task = new Entity(\"task\");"));
         Assert.That(result, Does.Contain("service.Create(task);"));
+    }
     }
 }

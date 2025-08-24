@@ -10,7 +10,7 @@ fully functional plugin, but results vary so human review and verification remai
 ## 2. User Flow
 
 ### Step 1 – User Request
-- Guided **UI/Wizard** helps define the plugin requirements:
+- CLI **UI/Wizard** helps define the plugin requirements:
   - Trigger conditions (Create/Update/Delete)
   - Entity/entities involved:
   - Desired logic

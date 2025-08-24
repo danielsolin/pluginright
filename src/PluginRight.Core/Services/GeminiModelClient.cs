@@ -15,7 +15,7 @@ public sealed class GeminiModelClient : IModelClient
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
-    private const string Model = "gemini-1.5-flash-latest";
+    private const string _model = "gemini-1.5-flash-latest";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GeminiModelClient"/> class.
@@ -32,7 +32,7 @@ public sealed class GeminiModelClient : IModelClient
     public async Task<string> GenerateLogicAsync(Job job)
     {
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/" +
-                  $"{Model}:generateContent?key={_apiKey}";
+                  $"{_model}:generateContent?key={_apiKey}";
 
         var requestBody = new
         {

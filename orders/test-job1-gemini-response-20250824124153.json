@@ -1,0 +1,51 @@
+private void ExecuteBusinessLogic(IOrganizationService service, ITracingService tracingService, Entity entity)
+{
+    // Check if the entity is a Contact and if the ParentCustomerId is modified.  We rely on the platform to only trigger this plugin on updates.
+    if (entity.LogicalName != Contact.EntityLogicalName || !entity.Contains("parentcustomerid")) return;
+
+    // Get the new ParentCustomerId.
+    EntityReference newParentCustomerId = entity.GetAttributeValue<EntityReference>("parentcustomerid");
+
+    //Handle null ParentCustomerId
+    if (newParentCustomerId == null) return;
+
+
+    try
+    {
+        // Retrieve all contacts with the old ParentCustomerId.  This assumes the old ParentCustomerId is available in the pre-image.  If not, a different approach is needed.
+        Entity preImage = ((IOrganizationServiceContext)service).PreImage;
+        if (preImage == null || !preImage.Contains("parentcustomerid")) return;
+
+        EntityReference oldParentCustomerId = preImage.GetAttributeValue<EntityReference>("parentcustomerid");
+
+        if (oldParentCustomerId == null || oldParentCustomerId.Id == newParentCustomerId.Id) return; //No change in parent customer
+
+
+        // Fetch contacts with the old parent customer ID.  Use paging for large datasets.
+        var query = new QueryExpression(Contact.EntityLogicalName);
+        query.Criteria.AddCondition("parentcustomerid", ConditionOperator.Equal, oldParentCustomerId.Id);
+        query.ColumnSet = new ColumnSet("contactid", "parentcustomerid"); //Only retrieve necessary fields.
+
+        var contactsToUpdate = service.RetrieveMultiple(query);
+
+        foreach (var contact in contactsToUpdate.Entities)
+        {
+            // Update the ParentCustomerId of each contact.
+            contact["parentcustomerid"] = newParentCustomerId;
+            service.Update(contact);
+            tracingService.Trace("Updated contact {0} with new parent customer {1}", contact.Id, newParentCustomerId.Id);
+        }
+    }
+    catch (FaultException<OrganizationServiceFault> ex)
+    {
+        tracingService.Trace("Error updating contacts: {0}", ex.Message);
+        //Consider more robust error handling, such as throwing an exception to rollback the transaction.
+        //throw new InvalidPluginExecutionException("Error updating contacts.", ex); 
+    }
+    catch (Exception ex)
+    {
+        tracingService.Trace("Unexpected error: {0}", ex.Message);
+        //Consider more robust error handling, such as throwing an exception to rollback the transaction.
+        //throw new InvalidPluginExecutionException("Unexpected error.", ex);
+    }
+}

@@ -48,5 +48,4 @@ public class StubModelClientTests
         Assert.That(result, Does.Contain("var task = new Entity(\"task\");"));
         Assert.That(result, Does.Contain("service.Create(task);"));
     }
-    }
 }

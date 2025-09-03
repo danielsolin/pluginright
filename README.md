@@ -1,3 +1,5 @@
+***2025-09-04: Project put on hold because of current state of  AI/LLMs.*** 
+
 # PluginRight – AI Assisted Plugin Generator for Microsoft Dynamics 365 / Dataverse
 
 ## 1. Core Concept
